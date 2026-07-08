@@ -107,8 +107,31 @@ function Checkout() {
                 syncInProgress.current.add(designId);
 
                 try {
-                    // Upload Front Design if pending
                     let finalFrontDesign = null;
+                    let finalBackDesign = null;
+                    const formData = new FormData();
+                    let hasFilesToSync = false;
+                    const calcPrintArea = item.design.front && item.design.back ? "Front and Back" : (item.design.front ? "Front" : "Back");
+                    formData.append("printArea", calcPrintArea);
+
+                    let frontText = "";
+                    let backText = "";
+                    if (item.design.front && item.design.front.shapeProps) {
+                        const x = item.design.front.shapeProps.x;
+                        if (x < 110) frontText = "Left";
+                        else if (x > 150) frontText = "Right";
+                        else frontText = "Center";
+                    }
+                    if (item.design.back && item.design.back.shapeProps) {
+                        const x = item.design.back.shapeProps.x;
+                        if (x < 110) backText = "Left";
+                        else if (x > 150) backText = "Right";
+                        else backText = "Center";
+                    }
+                    const placement = (frontText && backText) ? `Front: ${frontText}, Back: ${backText}` : (frontText || backText || "Center");
+                    formData.append("position", placement);
+
+                    // Upload Front Design if pending
                     if (item.design.front) {
                         if (item.design.front.isUploading) {
                             let fileToUpload = item.design.front.localFile;
@@ -117,18 +140,8 @@ function Checkout() {
                                 fileToUpload = dataURLtoFile(item.design.front.base64Data, "front_sticker.png");
                             }
                             if (fileToUpload) {
-                                const formData = new FormData();
-                                formData.append("file", fileToUpload);
-                                formData.append("printArea", "Front");
-                                console.log(`[Checkout] Syncing front file in background...`);
-                                const res = await axiosClient.post("/designs/upload", formData, {
-                                    headers: { "Content-Type": "multipart/form-data" },
-                                });
-                                finalFrontDesign = {
-                                    id: res.data.id,
-                                    fileUrl: res.data.fileUrl,
-                                    printArea: "Front"
-                                };
+                                formData.append("frontFile", fileToUpload);
+                                hasFilesToSync = true;
                             }
                         } else {
                             finalFrontDesign = item.design.front;
@@ -136,7 +149,6 @@ function Checkout() {
                     }
 
                     // Upload Back Design if pending
-                    let finalBackDesign = null;
                     if (item.design.back) {
                         if (item.design.back.isUploading) {
                             let fileToUpload = item.design.back.localFile;
@@ -145,28 +157,41 @@ function Checkout() {
                                 fileToUpload = dataURLtoFile(item.design.back.base64Data, "back_sticker.png");
                             }
                             if (fileToUpload) {
-                                const formData = new FormData();
-                                formData.append("file", fileToUpload);
-                                formData.append("printArea", "Back");
-                                console.log(`[Checkout] Syncing back file in background...`);
-                                const res = await axiosClient.post("/designs/upload", formData, {
-                                    headers: { "Content-Type": "multipart/form-data" },
-                                });
-                                finalBackDesign = {
-                                    id: res.data.id,
-                                    fileUrl: res.data.fileUrl,
-                                    printArea: "Back"
-                                };
+                                formData.append("backFile", fileToUpload);
+                                hasFilesToSync = true;
                             }
                         } else {
                             finalBackDesign = item.design.back;
                         }
                     }
 
+                    if (hasFilesToSync) {
+                        console.log(`[Checkout] Syncing combined files in background...`);
+                        const res = await axiosClient.post("/designs/upload", formData, {
+                            headers: { "Content-Type": "multipart/form-data" },
+                        });
+
+                        if (item.design.front && item.design.front.isUploading) {
+                            finalFrontDesign = {
+                                id: res.data.id,
+                                fileUrl: res.data.fileUrl,
+                                printArea: "Front"
+                            };
+                        }
+                        if (item.design.back && item.design.back.isUploading) {
+                            finalBackDesign = {
+                                id: res.data.id,
+                                fileUrl: res.data.fileUrlBack || res.data.fileUrl,
+                                printArea: "Back"
+                            };
+                        }
+                    }
+
                     const finalDesign = {
                         id: (finalFrontDesign?.id || finalBackDesign?.id || "sync_done").toString(),
                         fileUrl: finalFrontDesign?.fileUrl || finalBackDesign?.fileUrl || "",
-                        printArea: finalFrontDesign && finalBackDesign ? "Front & Back" : (finalFrontDesign ? "Front" : "Back"),
+                        fileUrlBack: finalBackDesign?.fileUrl || "",
+                        printArea: finalFrontDesign && finalBackDesign ? "Front and Back" : (finalFrontDesign ? "Front" : "Back"),
                         front: finalFrontDesign,
                         back: finalBackDesign
                     };

@@ -48,10 +48,14 @@ function Footer() {
                         Explore
                     </h3>
                     <ul style={{ listStyle: "none", padding: 0, margin: 0, display: "flex", flexDirection: "column", gap: "12px" }}>
-                        {["Shop", "Customize", "About Us"].map((item, i) => (
+                        {[
+                            { label: "Shop", to: "/shop" },
+                            { label: "Customize", to: "/customize" },
+                            { label: "About Us", to: "/about" }
+                        ].map((link, i) => (
                             <li key={i}>
-                                <Link to={`/${item.toLowerCase().replace(" ", "-")}`} style={{ color: "#888", textDecoration: "none", fontSize: "14px", transition: "color 0.3s" }} onMouseEnter={(e) => e.target.style.color = "#fff"} onMouseLeave={(e) => e.target.style.color = "#888"}>
-                                    {item}
+                                <Link to={link.to} style={{ color: "#888", textDecoration: "none", fontSize: "14px", transition: "color 0.3s" }} onMouseEnter={(e) => e.target.style.color = "#fff"} onMouseLeave={(e) => e.target.style.color = "#888"}>
+                                    {link.label}
                                 </Link>
                             </li>
                         ))}
@@ -64,10 +68,14 @@ function Footer() {
                         Support
                     </h3>
                     <ul style={{ listStyle: "none", padding: 0, margin: 0, display: "flex", flexDirection: "column", gap: "12px" }}>
-                        {["Contact", "Track Order", "FAQ"].map((item, i) => (
+                        {[
+                            { label: "Contact", to: "/contact" },
+                            { label: "Track Order", to: "/track-order" },
+                            { label: "FAQ", to: "/faq" }
+                        ].map((link, i) => (
                             <li key={i}>
-                                <Link to={`/${item.toLowerCase().replace(" ", "-")}`} style={{ color: "#888", textDecoration: "none", fontSize: "14px", transition: "color 0.3s" }} onMouseEnter={(e) => e.target.style.color = "#fff"} onMouseLeave={(e) => e.target.style.color = "#888"}>
-                                    {item}
+                                <Link to={link.to} style={{ color: "#888", textDecoration: "none", fontSize: "14px", transition: "color 0.3s" }} onMouseEnter={(e) => e.target.style.color = "#fff"} onMouseLeave={(e) => e.target.style.color = "#888"}>
+                                    {link.label}
                                 </Link>
                             </li>
                         ))}

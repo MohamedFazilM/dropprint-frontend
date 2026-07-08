@@ -45,13 +45,13 @@ function useReveal() {
 
 function Home() {
     const [vh, setVh] = useState(() => window.innerHeight);
-    const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
+    const [isMobile, setIsMobile] = useState(window.innerWidth < 640);
 
     useEffect(() => {
         const updateVh = () => setVh(window.innerHeight);
         const handleResize = () => {
             updateVh();
-            setIsMobile(window.innerWidth < 768);
+            setIsMobile(window.innerWidth < 640);
         };
         updateVh();
         window.addEventListener("resize", handleResize);
@@ -108,7 +108,7 @@ function Home() {
                 <div className="hero-3d-sticky"
                     style={{ height: `${vh}px` }} >
                     {/* FULL-SCREEN canvas behind everything */}
-                    <ScrollFrameAnimation />
+                    {!isMobile && <ScrollFrameAnimation />}
 
                     {/* LEFT: Text content overlay */}
                     <div className="hero-3d-content" >

@@ -175,282 +175,160 @@ function Navbar() {
                 {/* Actions: Wishlist, Cart and Hamburger */}
                 <div style={{ display: "flex", gap: isMobile ? "8px" : "10px", alignItems: "center", flexShrink: 0 }}>
                     {/* Wishlist Link */}
-                    <Link
-                        to="/wishlist"
-                        style={{
-                            display: "flex",
-                            alignItems: "center",
-                            gap: "6px",
-                            fontFamily: "'Outfit', sans-serif",
-                            fontWeight: 600,
-                            fontSize: "13px",
-                            letterSpacing: "0.5px",
-                            textTransform: "uppercase",
-                            color: "#111",
-                            textDecoration: "none",
-                            position: "relative",
-                            padding: isMobile ? "8px 10px" : "8px 16px",
-                            borderRadius: "8px",
-                            border: "1.5px solid #e5e5e5",
-                            background: "#fff",
-                            transition: "all 0.2s ease",
-                        }}
-                        onMouseEnter={e => {
-                            e.currentTarget.style.borderColor = "#cc0000";
-                            e.currentTarget.style.color = "#cc0000";
-                            e.currentTarget.style.background = "rgba(204,0,0,0.04)";
-                        }}
-                        onMouseLeave={e => {
-                            e.currentTarget.style.borderColor = "#e5e5e5";
-                            e.currentTarget.style.color = "#111";
-                            e.currentTarget.style.background = "#fff";
-                        }}
-                    >
-                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                            <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
-                        </svg>
-                        {!isMobile && "WISHLIST"}
-                        {wishlistCount > 0 && (
-                            <span style={{
-                                position: "absolute",
-                                top: "-6px",
-                                right: "-6px",
-                                background: "#cc0000",
-                                color: "#fff",
-                                fontSize: "10px",
-                                borderRadius: "50%",
-                                width: "18px",
-                                height: "18px",
+                    {/* Wishlist Link */}
+                    {customerUser && (
+                        <Link
+                            to="/wishlist"
+                            style={{
                                 display: "flex",
                                 alignItems: "center",
-                                justifyContent: "center",
-                                fontWeight: 700,
-                                boxShadow: "0 2px 6px rgba(204,0,0,0.4)",
-                            }}>
-                                {wishlistCount}
-                            </span>
-                        )}
-                    </Link>
-
-                    {/* Cart Link */}
-                    <Link
-                        to="/cart"
-                        style={{
-                            display: "flex",
-                            alignItems: "center",
-                            gap: "6px",
-                            fontFamily: "'Outfit', sans-serif",
-                            fontWeight: 600,
-                            fontSize: "13px",
-                            letterSpacing: "0.5px",
-                            textTransform: "uppercase",
-                            color: "#111",
-                            textDecoration: "none",
-                            position: "relative",
-                            padding: isMobile ? "8px 10px" : "8px 16px",
-                            borderRadius: "8px",
-                            border: "1.5px solid #e5e5e5",
-                            background: "#fff",
-                            transition: "all 0.2s ease",
-                        }}
-                        onMouseEnter={e => {
-                            e.currentTarget.style.borderColor = "#cc0000";
-                            e.currentTarget.style.color = "#cc0000";
-                            e.currentTarget.style.background = "rgba(204,0,0,0.04)";
-                        }}
-                        onMouseLeave={e => {
-                            e.currentTarget.style.borderColor = "#e5e5e5";
-                            e.currentTarget.style.color = "#111";
-                            e.currentTarget.style.background = "#fff";
-                        }}
-                    >
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                            <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z" />
-                            <line x1="3" y1="6" x2="21" y2="6" />
-                            <path d="M16 10a4 4 0 0 1-8 0" />
-                        </svg>
-                        {!isMobile && "CART"}
-                        {count > 0 && (
-                            <span style={{
-                                position: "absolute",
-                                top: "-6px",
-                                right: "-6px",
-                                background: "#cc0000",
-                                color: "#fff",
-                                fontSize: "10px",
-                                borderRadius: "50%",
-                                width: "18px",
-                                height: "18px",
-                                display: "flex",
-                                alignItems: "center",
-                                justifyContent: "center",
-                                fontWeight: 700,
-                                boxShadow: "0 2px 6px rgba(204,0,0,0.4)",
-                            }}>
-                                {count}
-                            </span>
-                        )}
-                    </Link>
-
-                    {/* Customer Login/Profile Action */}
-                    {customerUser ? (
-                        <div 
-                            style={{ position: "relative" }}
-                            onMouseEnter={() => setProfileDropdownOpen(true)}
-                            onMouseLeave={() => setProfileDropdownOpen(false)}
+                                gap: "6px",
+                                fontFamily: "'Outfit', sans-serif",
+                                fontWeight: 600,
+                                fontSize: "13px",
+                                letterSpacing: "0.5px",
+                                textTransform: "uppercase",
+                                color: "#111",
+                                textDecoration: "none",
+                                position: "relative",
+                                padding: isMobile ? "8px 10px" : "8px 16px",
+                                borderRadius: "8px",
+                                border: "1.5px solid #e5e5e5",
+                                background: "#fff",
+                                transition: "all 0.2s ease",
+                            }}
+                            onMouseEnter={e => {
+                                e.currentTarget.style.borderColor = "#cc0000";
+                                e.currentTarget.style.color = "#cc0000";
+                                e.currentTarget.style.background = "rgba(204,0,0,0.04)";
+                            }}
+                            onMouseLeave={e => {
+                                e.currentTarget.style.borderColor = "#e5e5e5";
+                                e.currentTarget.style.color = "#111";
+                                e.currentTarget.style.background = "#fff";
+                            }}
                         >
-                            {/* Profile Trigger Button (Circular Avatar) */}
-                            <button
-                                style={{
+                            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                                <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
+                            </svg>
+                            {!isMobile && "WISHLIST"}
+                            {wishlistCount > 0 && (
+                                <span style={{
+                                    position: "absolute",
+                                    top: "-6px",
+                                    right: "-6px",
+                                    background: "#cc0000",
+                                    color: "#fff",
+                                    fontSize: "10px",
+                                    borderRadius: "50%",
+                                    width: "18px",
+                                    height: "18px",
                                     display: "flex",
                                     alignItems: "center",
                                     justifyContent: "center",
-                                    width: "38px",
-                                    height: "38px",
-                                    borderRadius: "50%",
-                                    background: "linear-gradient(135deg, #cc0000 0%, #a30000 100%)",
-                                    color: "#fff",
-                                    fontFamily: "'Outfit', sans-serif",
                                     fontWeight: 700,
-                                    fontSize: "15px",
-                                    border: "1.5px solid transparent",
-                                    cursor: "pointer",
-                                    boxShadow: "0 2px 8px rgba(204,0,0,0.2)",
-                                    transition: "all 0.2s ease",
-                                }}
-                                onMouseEnter={e => {
-                                    e.currentTarget.style.transform = "scale(1.05)";
-                                    e.currentTarget.style.boxShadow = "0 4px 12px rgba(204,0,0,0.35)";
-                                }}
-                                onMouseLeave={e => {
-                                    e.currentTarget.style.transform = "scale(1)";
-                                    e.currentTarget.style.boxShadow = "0 2px 8px rgba(204,0,0,0.2)";
-                                }}
-                            >
-                                {customerUser.name.charAt(0).toUpperCase()}
-                            </button>
-
-                            {/* Dropdown Menu Box */}
-                            {profileDropdownOpen && (
-                                <div style={{
-                                    position: "absolute",
-                                    top: "100%",
-                                    right: 0,
-                                    marginTop: "6px",
-                                    width: "230px",
-                                    background: "#fff",
-                                    borderRadius: "14px",
-                                    boxShadow: "0 12px 36px rgba(0,0,0,0.12), 0 2px 8px rgba(0,0,0,0.04)",
-                                    border: "1px solid #eef0f3",
-                                    padding: "6px 0",
-                                    zIndex: 1000,
-                                    animation: "slideDown 0.25s cubic-bezier(0.16, 1, 0.3, 1) both"
+                                    boxShadow: "0 2px 6px rgba(204,0,0,0.4)",
                                 }}>
-                                    {/* User header section */}
-                                    <div style={{
-                                        padding: "12px 16px",
-                                        borderBottom: "1px solid #f3f4f6"
-                                    }}>
-                                        <div style={{ fontSize: "14px", fontWeight: 800, color: "#111", textTransform: "capitalize" }}>{customerUser.name}</div>
-                                        <div style={{ fontSize: "11px", color: "#71717a", marginTop: "2px", wordBreak: "break-all" }}>{customerUser.email}</div>
-                                    </div>
-
-                                    {/* User metadata list */}
-                                    <div style={{ padding: "6px 0" }}>
-                                        {customerUser.phone && (
-                                            <div style={{
-                                                display: "flex",
-                                                alignItems: "center",
-                                                gap: "8px",
-                                                padding: "6px 16px",
-                                                fontSize: "12px",
-                                                color: "#4b5563"
-                                            }}>
-                                                <span>📞</span>
-                                                <span>{customerUser.phone}</span>
-                                            </div>
-                                        )}
-                                        {customerUser.address && (
-                                            <div style={{
-                                                display: "flex",
-                                                alignItems: "flex-start",
-                                                gap: "8px",
-                                                padding: "6px 16px",
-                                                fontSize: "12px",
-                                                color: "#4b5563",
-                                                lineHeight: "1.4"
-                                            }}>
-                                                <span>📍</span>
-                                                <span style={{
-                                                    display: "-webkit-box",
-                                                    WebkitLineClamp: 2,
-                                                    WebkitBoxOrient: "vertical",
-                                                    overflow: "hidden"
-                                                }}>{customerUser.address}</span>
-                                            </div>
-                                        )}
-
-                                        {/* My Orders Link */}
-                                        <Link
-                                            to="/my-orders"
-                                            onClick={() => setProfileDropdownOpen(false)}
-                                            style={{
-                                                display: "flex",
-                                                alignItems: "center",
-                                                gap: "8px",
-                                                padding: "8px 16px",
-                                                fontSize: "12px",
-                                                fontWeight: 700,
-                                                color: "#cc0000",
-                                                textDecoration: "none",
-                                                transition: "background 0.2s"
-                                            }}
-                                            onMouseEnter={e => e.currentTarget.style.background = "#fff1f1"}
-                                            onMouseLeave={e => e.currentTarget.style.background = "none"}
-                                        >
-                                            <span>📦</span>
-                                            <span>My Orders</span>
-                                        </Link>
-
-                                        <hr style={{ border: 0, borderTop: "1px solid #f3f4f6", margin: "8px 0" }} />
-
-                                        {/* Logout trigger */}
-                                        <button
-                                            onClick={() => {
-                                                localStorage.removeItem("customerUser");
-                                                localStorage.removeItem("supabaseAccessToken");
-                                                window.dispatchEvent(new Event("customerLoginUpdate"));
-                                            }}
-                                            style={{
-                                                width: "100%",
-                                                display: "flex",
-                                                alignItems: "center",
-                                                gap: "8px",
-                                                padding: "10px 16px",
-                                                fontFamily: "'Outfit', sans-serif",
-                                                fontSize: "13px",
-                                                fontWeight: 700,
-                                                color: "#cc0000",
-                                                background: "none",
-                                                border: "none",
-                                                textAlign: "left",
-                                                cursor: "pointer",
-                                                transition: "background 0.2s"
-                                            }}
-                                            onMouseEnter={e => e.currentTarget.style.background = "#fff1f1"}
-                                            onMouseLeave={e => e.currentTarget.style.background = "none"}
-                                        >
-                                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                                                <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
-                                                <polyline points="16 17 21 12 16 7" />
-                                                <line x1="21" y1="12" x2="9" y2="12" />
-                                            </svg>
-                                            Logout
-                                        </button>
-                                    </div>
-                                </div>
+                                    {wishlistCount}
+                                </span>
                             )}
-                        </div>
+                        </Link>
+                    )}
+
+                    {/* Cart Link */}
+                    {customerUser && (
+                        <Link
+                            to="/cart"
+                            style={{
+                                display: "flex",
+                                alignItems: "center",
+                                gap: "6px",
+                                fontFamily: "'Outfit', sans-serif",
+                                fontWeight: 600,
+                                fontSize: "13px",
+                                letterSpacing: "0.5px",
+                                textTransform: "uppercase",
+                                color: "#111",
+                                textDecoration: "none",
+                                position: "relative",
+                                padding: isMobile ? "8px 10px" : "8px 16px",
+                                borderRadius: "8px",
+                                border: "1.5px solid #e5e5e5",
+                                background: "#fff",
+                                transition: "all 0.2s ease",
+                            }}
+                            onMouseEnter={e => {
+                                e.currentTarget.style.borderColor = "#cc0000";
+                                e.currentTarget.style.color = "#cc0000";
+                                e.currentTarget.style.background = "rgba(204,0,0,0.04)";
+                            }}
+                            onMouseLeave={e => {
+                                e.currentTarget.style.borderColor = "#e5e5e5";
+                                e.currentTarget.style.color = "#111";
+                                e.currentTarget.style.background = "#fff";
+                            }}
+                        >
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z" />
+                                <line x1="3" y1="6" x2="21" y2="6" />
+                                <path d="M16 10a4 4 0 0 1-8 0" />
+                            </svg>
+                            {!isMobile && "CART"}
+                            {count > 0 && (
+                                <span style={{
+                                    position: "absolute",
+                                    top: "-6px",
+                                    right: "-6px",
+                                    background: "#cc0000",
+                                    color: "#fff",
+                                    fontSize: "10px",
+                                    borderRadius: "50%",
+                                    width: "18px",
+                                    height: "18px",
+                                    display: "flex",
+                                    alignItems: "center",
+                                    justifyContent: "center",
+                                    fontWeight: 700,
+                                    boxShadow: "0 2px 6px rgba(204,0,0,0.4)",
+                                }}>
+                                    {count}
+                                </span>
+                            )}
+                        </Link>
+                    )}
+
+                    {/* Customer Login/Profile Action */}
+                    {customerUser ? (
+                        <button
+                            onClick={() => setProfileDropdownOpen(true)}
+                            style={{
+                                display: "flex",
+                                alignItems: "center",
+                                justifyContent: "center",
+                                width: "38px",
+                                height: "38px",
+                                borderRadius: "50%",
+                                background: "linear-gradient(135deg, #cc0000 0%, #a30000 100%)",
+                                color: "#fff",
+                                fontFamily: "'Outfit', sans-serif",
+                                fontWeight: 700,
+                                fontSize: "15px",
+                                border: "1.5px solid transparent",
+                                cursor: "pointer",
+                                boxShadow: "0 2px 8px rgba(204,0,0,0.2)",
+                                transition: "all 0.2s ease",
+                            }}
+                            onMouseEnter={e => {
+                                e.currentTarget.style.transform = "scale(1.05)";
+                                e.currentTarget.style.boxShadow = "0 4px 12px rgba(204,0,0,0.35)";
+                            }}
+                            onMouseLeave={e => {
+                                e.currentTarget.style.transform = "scale(1)";
+                                e.currentTarget.style.boxShadow = "0 2px 8px rgba(204,0,0,0.2)";
+                            }}
+                        >
+                            {customerUser.name.charAt(0).toUpperCase()}
+                        </button>
                     ) : (
                         <Link
                             to="/login"
@@ -489,6 +367,8 @@ function Navbar() {
                             {!isMobile && "LOGIN"}
                         </Link>
                     )}
+
+
 
                     {/* Hamburger Button */}
                     {isMobile && (
@@ -582,6 +462,179 @@ function Navbar() {
                         }
                     `}</style>
                 </div>
+            )}
+
+            {/* Slide-out Profile Drawer */}
+            {customerUser && profileDropdownOpen && (
+                <>
+                    {/* Backdrop Overlay */}
+                    <div 
+                        onClick={() => setProfileDropdownOpen(false)}
+                        style={{
+                            position: "fixed",
+                            inset: 0,
+                            background: "rgba(0, 0, 0, 0.4)",
+                            backdropFilter: "blur(4px)",
+                            zIndex: 999998,
+                            animation: "fadeInBackdrop 0.25s ease-out both"
+                        }}
+                    />
+                    
+                    {/* Drawer Content Container */}
+                    <div style={{
+                        position: "fixed",
+                        top: 0,
+                        right: 0,
+                        bottom: 0,
+                        width: "320px",
+                        background: "#fff",
+                        boxShadow: "-8px 0 32px rgba(0, 0, 0, 0.08)",
+                        zIndex: 999999,
+                        display: "flex",
+                        flexDirection: "column",
+                        fontFamily: "'Outfit', sans-serif",
+                        animation: "slideInRightDrawer 0.3s cubic-bezier(0.16, 1, 0.3, 1) both"
+                    }}>
+                        {/* Drawer Header */}
+                        <div style={{
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "space-between",
+                            padding: "20px 24px",
+                            borderBottom: "1px solid #f3f4f6"
+                        }}>
+                            <span style={{ fontSize: "16px", fontWeight: 800, color: "#111", textTransform: "uppercase", letterSpacing: "1px" }}>Profile</span>
+                            <button 
+                                onClick={() => setProfileDropdownOpen(false)}
+                                style={{
+                                    background: "none",
+                                    border: "none",
+                                    fontSize: "20px",
+                                    fontWeight: "bold",
+                                    color: "#999",
+                                    cursor: "pointer",
+                                    padding: "4px 8px",
+                                    transition: "color 0.2s"
+                                }}
+                                onMouseEnter={e => e.currentTarget.style.color = "#cc0000"}
+                                onMouseLeave={e => e.currentTarget.style.color = "#999"}
+                            >
+                                ✕
+                            </button>
+                        </div>
+
+                        {/* Drawer Body (User Details) */}
+                        <div style={{ padding: "32px 24px", display: "flex", flexDirection: "column", alignItems: "center", borderBottom: "1px solid #f3f4f6" }}>
+                            {/* Large Avatar */}
+                            <div style={{
+                                width: "70px",
+                                height: "70px",
+                                borderRadius: "50%",
+                                background: "linear-gradient(135deg, #cc0000 0%, #a30000 100%)",
+                                color: "#fff",
+                                display: "flex",
+                                alignItems: "center",
+                                justifyContent: "center",
+                                fontSize: "28px",
+                                fontWeight: 800,
+                                marginBottom: "16px",
+                                boxShadow: "0 4px 14px rgba(204, 0, 0, 0.2)"
+                            }}>
+                                {customerUser.name.charAt(0).toUpperCase()}
+                            </div>
+                            <div style={{ fontSize: "18px", fontWeight: 800, color: "#111", textTransform: "capitalize" }}>{customerUser.name}</div>
+                            <div style={{ fontSize: "12px", color: "#71717a", marginTop: "4px", wordBreak: "break-all" }}>{customerUser.email}</div>
+                        </div>
+
+                        {/* Drawer Navigation & Contact Details */}
+                        <div style={{ flexGrow: 1, padding: "24px 0", display: "flex", flexDirection: "column", justifyContent: "space-between" }}>
+                            <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
+                                {customerUser.phone && (
+                                    <div style={{ display: "flex", alignItems: "center", gap: "10px", padding: "10px 24px", fontSize: "13px", color: "#4b5563" }}>
+                                        <span style={{ fontSize: "16px" }}>📞</span>
+                                        <span>{customerUser.phone}</span>
+                                    </div>
+                                )}
+                                {customerUser.address && (
+                                    <div style={{ display: "flex", alignItems: "flex-start", gap: "10px", padding: "10px 24px", fontSize: "13px", color: "#4b5563", lineHeight: "1.5" }}>
+                                        <span style={{ fontSize: "16px" }}>📍</span>
+                                        <span>{customerUser.address}</span>
+                                    </div>
+                                )}
+
+                                <hr style={{ border: 0, borderTop: "1px solid #f3f4f6", margin: "16px 0" }} />
+
+                                {/* My Orders Menu Item */}
+                                <Link
+                                    to="/my-orders"
+                                    onClick={() => setProfileDropdownOpen(false)}
+                                    style={{
+                                        display: "flex",
+                                        alignItems: "center",
+                                        gap: "10px",
+                                        padding: "12px 24px",
+                                        fontSize: "14px",
+                                        fontWeight: 700,
+                                        color: "#cc0000",
+                                        textDecoration: "none",
+                                        transition: "background 0.2s"
+                                    }}
+                                    onMouseEnter={e => e.currentTarget.style.background = "#fff1f1"}
+                                    onMouseLeave={e => e.currentTarget.style.background = "none"}
+                                >
+                                    <span style={{ fontSize: "16px" }}>📦</span>
+                                    <span>My Orders</span>
+                                </Link>
+                            </div>
+
+                            {/* Logout at the very bottom */}
+                            <div style={{ marginTop: "auto", padding: "0 24px" }}>
+                                <button
+                                    onClick={() => {
+                                        setProfileDropdownOpen(false);
+                                        localStorage.removeItem("customerUser");
+                                        localStorage.removeItem("supabaseAccessToken");
+                                        window.dispatchEvent(new Event("customerLoginUpdate"));
+                                    }}
+                                    style={{
+                                        width: "100%",
+                                        display: "flex",
+                                        alignItems: "center",
+                                        justifyContent: "center",
+                                        gap: "8px",
+                                        padding: "14px",
+                                        fontFamily: "'Outfit', sans-serif",
+                                        fontSize: "14px",
+                                        fontWeight: 700,
+                                        color: "#fff",
+                                        background: "#111",
+                                        border: "none",
+                                        borderRadius: "10px",
+                                        cursor: "pointer",
+                                        transition: "all 0.2s"
+                                    }}
+                                    onMouseEnter={e => e.currentTarget.style.background = "#cc0000"}
+                                    onMouseLeave={e => e.currentTarget.style.background = "#111"}
+                                >
+                                    <span>🚪</span>
+                                    <span>Log Out</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Keyframe animations */}
+                    <style>{`
+                        @keyframes fadeInBackdrop {
+                            from { opacity: 0; }
+                            to { opacity: 1; }
+                        }
+                        @keyframes slideInRightDrawer {
+                            from { transform: translateX(100%); }
+                            to { transform: translateX(0); }
+                        }
+                    `}</style>
+                </>
             )}
         </>
     );

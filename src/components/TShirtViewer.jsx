@@ -48,6 +48,7 @@ export default function TShirtViewer({
                                 backDecalProps={backDecalProps}
                                 onDebugInfo={onDebugInfo}
                                 printArea={printArea}
+                                isOrbiting={isOrbiting}
                             />
                         </group>
                     </Suspense>

@@ -61,7 +61,7 @@ function DesignImage({ imageUrl, isSelected, onSelect, shapeProps, onChange }) {
                 height={dHeight}
                 {...shapeProps}
                 draggable
-                opacity={0.01}
+                opacity={1.0}
                 onClick={onSelect}
                 onTap={onSelect}
                 onDragEnd={(e) => {
@@ -101,8 +101,12 @@ function DesignStudio() {
     const addToCart = useCartStore((state) => state.addToCart);
     const setDirectCheckoutItem = useCartStore((state) => state.setDirectCheckoutItem);
 
-    const [product, setProduct] = useState(null);
-    const [allProducts, setAllProducts] = useState([]);
+    const [allProducts, setAllProducts] = useState([
+        { id: 1, name: "Premium Drop-Shoulder Tee", basePrice: 249, color: "White" },
+        { id: 2, name: "Heavyweight Oversized Tee", basePrice: 349, color: "Black" },
+        { id: 3, name: "Luxury Streetwear Tee", basePrice: 449, color: "Gray" }
+    ]);
+    const [product, setProduct] = useState({ id: 1, name: "Premium Drop-Shoulder Tee", basePrice: 249, color: "White" });
     const [printArea, setPrintArea] = useState("Front");
     const [frontFile, setFrontFile] = useState(null);
     const [frontPreviewUrl, setFrontPreviewUrl] = useState(null);
@@ -203,16 +207,22 @@ function DesignStudio() {
     useEffect(() => {
         if (productId) {
             axiosClient.get(`/products/${productId}`).then((res) => {
-                setProduct(res.data);
-                if (res.data.color) setSelectedColor(res.data.color);
+                if (res.data) {
+                    setProduct(res.data);
+                    if (res.data.color) setSelectedColor(res.data.color);
+                }
+            }).catch((err) => {
+                console.log("[DesignStudio] Could not fetch product by ID, using local template:", err);
             });
         } else {
             axiosClient.get("/products").then((res) => {
-                setAllProducts(res.data);
-                if (res.data.length > 0) {
+                if (res.data && res.data.length > 0) {
+                    setAllProducts(res.data);
                     setProduct(res.data[0]);
                     if (res.data[0].color) setSelectedColor(res.data[0].color);
                 }
+            }).catch((err) => {
+                console.log("[DesignStudio] Using local fallback apparel templates:", err);
             });
         }
     }, [productId]);
@@ -353,7 +363,7 @@ function DesignStudio() {
                 const tempDesign = {
                     id: tempDesignId,
                     fileUrl: frontPreviewUrl || backPreviewUrl || "",
-                    printArea: frontFile && backFile ? "Both" : (frontFile ? "Front" : "Back"),
+                    printArea: frontFile && backFile ? "Front and Back" : (frontFile ? "Front" : "Back"),
                     isUploading: true,
                     front: frontFile ? {
                         id: "pending_front_" + Date.now(),
@@ -401,19 +411,33 @@ function DesignStudio() {
             let uploadedFront = null;
             let uploadedBack = null;
 
+            const formData = new FormData();
+            const calcPrintArea = frontFile && backFile ? "Front and Back" : (frontFile ? "Front" : "Back");
+            formData.append("printArea", calcPrintArea);
+
+            let frontText = "";
+            let backText = "";
+            if (frontFile && frontShapeProps) {
+                const x = frontShapeProps.x;
+                if (x < 110) frontText = "Left";
+                else if (x > 150) frontText = "Right";
+                else frontText = "Center";
+            }
+            if (backFile && backShapeProps) {
+                const x = backShapeProps.x;
+                if (x < 110) backText = "Left";
+                else if (x > 150) backText = "Right";
+                else backText = "Center";
+            }
+            const placement = (frontText && backText) ? `Front: ${frontText}, Back: ${backText}` : (frontText || backText || "Center");
+            formData.append("position", placement);
+
             if (frontFile) {
                 let uploadFile = frontFile;
                 if (frontFile.size > 200 * 1024) {
                     uploadFile = await compressImage(frontFile);
                 }
-                const formData = new FormData();
-                formData.append("file", uploadFile);
-                formData.append("printArea", "Front");
-
-                const res = await axiosClient.post("/designs/upload", formData, {
-                    headers: { "Content-Type": "multipart/form-data" },
-                });
-                uploadedFront = { id: res.data.id, fileUrl: res.data.fileUrl, printArea: "Front" };
+                formData.append("frontFile", uploadFile);
             }
 
             if (backFile) {
@@ -421,20 +445,25 @@ function DesignStudio() {
                 if (backFile.size > 200 * 1024) {
                     uploadFile = await compressImage(backFile);
                 }
-                const formData = new FormData();
-                formData.append("file", uploadFile);
-                formData.append("printArea", "Back");
+                formData.append("backFile", uploadFile);
+            }
 
-                const res = await axiosClient.post("/designs/upload", formData, {
-                    headers: { "Content-Type": "multipart/form-data" },
-                });
-                uploadedBack = { id: res.data.id, fileUrl: res.data.fileUrl, printArea: "Back" };
+            const res = await axiosClient.post("/designs/upload", formData, {
+                headers: { "Content-Type": "multipart/form-data" },
+            });
+
+            if (frontFile) {
+                uploadedFront = { id: res.data.id, fileUrl: res.data.fileUrl, printArea: "Front" };
+            }
+            if (backFile) {
+                uploadedBack = { id: res.data.id, fileUrl: res.data.fileUrlBack || res.data.fileUrl, printArea: "Back" };
             }
 
             const design = {
-                id: (uploadedFront?.id || uploadedBack?.id || Date.now()).toString(),
-                fileUrl: uploadedFront?.fileUrl || uploadedBack?.fileUrl || "",
-                printArea: uploadedFront && uploadedBack ? "Both" : (uploadedFront ? "Front" : "Back"),
+                id: res.data.id.toString(),
+                fileUrl: res.data.fileUrl || "",
+                fileUrlBack: res.data.fileUrlBack || "",
+                printArea: res.data.printArea,
                 front: uploadedFront,
                 back: uploadedBack
             };
@@ -779,7 +808,9 @@ function DesignStudio() {
                                     <input type="file" accept="image/*" onChange={handleFileChange} className="hidden" />
                                     <span className="text-3xl block group-hover:scale-110 transition-transform duration-200 mb-2">📤</span>
                                     <p className="text-sm font-extrabold text-zinc-800">Upload {printArea} Artwork</p>
-                                    <p className="text-[11px] text-zinc-400 mt-1">Supports transparent PNG, SVG and JPG (Max 5MB)</p>
+                                    <p className="text-[11px] text-zinc-500 mt-1">
+                                        Please upload <strong className="text-red-600">transparent PNG (Without background)</strong> only!
+                                    </p>
                                 </label>
                             )}
                         </div>

@@ -10,7 +10,8 @@ export default function TShirtModel({
     backPreviewUrl,
     backDecalProps,
     onDebugInfo,
-    printArea = "Front"
+    printArea = "Front",
+    isOrbiting = false
 }) {
     const { scene } = useGLTF("/models/oversized_t-shirt.glb");
     const { invalidate } = useThree();
@@ -91,11 +92,11 @@ export default function TShirtModel({
     useEffect(() => {
         if (scene) {
             let hexColor = color.toLowerCase();
-            if (hexColor === "navy") hexColor = "#0f1a2c";
-            if (hexColor === "gray") hexColor = "#808b96";
-            if (hexColor === "white") hexColor = "#ffffff";
-            if (hexColor === "black") hexColor = "#121212";
-            if (hexColor === "red") hexColor = "#c0392b";
+            if (hexColor === "navy") hexColor = "#1a365d"; // Rich, visible navy blue (not black)
+            if (hexColor === "gray") hexColor = "#8a95a5"; // Soft slate gray
+            if (hexColor === "white") hexColor = "#f9fafd"; // Premium clean off-white
+            if (hexColor === "black") hexColor = "#262626"; // Rich charcoal black (not pitch dark, shows fabric folds)
+            if (hexColor === "red") hexColor = "#b91c1c"; // Vibrant crimson red
 
             console.log(`[TShirtModel] Applying color tint: "${color}" (Hex: ${hexColor})`);
 
@@ -239,7 +240,7 @@ export default function TShirtModel({
             const parentPos = new THREE.Vector3(
                 decalProps.position[0],
                 decalProps.position[1],
-                side === "Back" ? -0.15 : 0.15
+                side === "Back" ? -0.5 : 0.5
             );
 
             // Transform parentPos to world space, then to mainMesh local space
@@ -250,7 +251,7 @@ export default function TShirtModel({
             const localScale = new THREE.Vector3(
                 decalProps.scale[0],
                 decalProps.scale[1],
-                0.4
+                1.0
             );
             const worldScale = new THREE.Vector3();
             rootRef.current.getWorldScale(worldScale);
@@ -309,42 +310,39 @@ export default function TShirtModel({
                 <primitive object={scene} dispose={null} />
             </group>
 
-            {/* Decals projected onto the main body mesh via portal */}
-            {mainMesh && frontDecalTexture && frontDecalState && createPortal(
+            {isOrbiting && mainMesh && frontDecalTexture && frontDecalState && createPortal(
                 <Decal
                     position={frontDecalState.position}
                     rotation={frontDecalState.rotation}
                     scale={frontDecalState.scale}
                 >
-                    <meshStandardMaterial
+                    <meshBasicMaterial
                         map={frontDecalTexture}
                         transparent
                         alphaTest={0.01}
-                        roughness={0.7}
-                        metalness={0.1}
-                        depthWrite={true}
-                        polygonOffset
-                        polygonOffsetFactor={-10}
+                        depthWrite={false}
+                        polygonOffset={true}
+                        polygonOffsetFactor={-100}
+                        polygonOffsetUnits={-100}
                     />
                 </Decal>,
                 mainMesh
             )}
 
-            {mainMesh && backDecalTexture && backDecalState && createPortal(
+            {isOrbiting && mainMesh && backDecalTexture && backDecalState && createPortal(
                 <Decal
                     position={backDecalState.position}
                     rotation={backDecalState.rotation}
                     scale={backDecalState.scale}
                 >
-                    <meshStandardMaterial
+                    <meshBasicMaterial
                         map={backDecalTexture}
                         transparent
                         alphaTest={0.01}
-                        roughness={0.7}
-                        metalness={0.1}
-                        depthWrite={true}
-                        polygonOffset
-                        polygonOffsetFactor={-10}
+                        depthWrite={false}
+                        polygonOffset={true}
+                        polygonOffsetFactor={-100}
+                        polygonOffsetUnits={-100}
                     />
                 </Decal>,
                 mainMesh
