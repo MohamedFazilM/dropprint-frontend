@@ -75,6 +75,10 @@ function Login() {
                 const metadata = supabaseLoginData.user?.user_metadata || {};
                 console.log("[Login] Supabase Auth successful.");
 
+                if (supabaseLoginData.access_token) {
+                    localStorage.setItem("supabaseAccessToken", supabaseLoginData.access_token);
+                }
+
                 // 2. Fetch or sync profile in our local backend database
                 let localCustomerData;
                 try {
@@ -151,6 +155,9 @@ function Login() {
                     setIsLoginMode(true); // Switch to login form
                 } else {
                     // 3. Store customer user session and navigate if auto-confirmed
+                    if (supabaseSignupData.session?.access_token) {
+                        localStorage.setItem("supabaseAccessToken", supabaseSignupData.session.access_token);
+                    }
                     localStorage.setItem("customerUser", JSON.stringify(response.data));
                     window.dispatchEvent(new Event("customerLoginUpdate"));
                     setSuccessMsg("Registration successful! Welcome, " + response.data.name + "!");

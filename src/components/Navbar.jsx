@@ -396,6 +396,7 @@ function Navbar() {
                                         <button
                                             onClick={() => {
                                                 localStorage.removeItem("customerUser");
+                                                localStorage.removeItem("supabaseAccessToken");
                                                 window.dispatchEvent(new Event("customerLoginUpdate"));
                                             }}
                                             style={{
