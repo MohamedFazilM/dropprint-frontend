@@ -124,7 +124,7 @@ function Cart() {
                             const frontUrl = item.design?.front?.fileUrl || (item.design?.printArea !== "Back" ? item.design?.fileUrl : null);
                             const backUrl = item.design?.back?.fileUrl || (item.design?.printArea === "Back" ? item.design?.fileUrl : null);
 
-                            const designId = (item.design?.front?.id || "") + "_" + (item.design?.back?.id || "") || item.design?.id || null;
+                            const designId = item.design?.id || null;
                             const uniqueKey = `${item.product.id}-${item.size}-${designId}`;
                             const showBack = hasBack && !hasFront;
                             const shirtImage = showBack && item.product.imageBack

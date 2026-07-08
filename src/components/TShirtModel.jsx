@@ -158,6 +158,15 @@ export default function TShirtModel({
         }
     }, [scene]);
 
+    // Cleanup to prevent React 19 / React-Three-Fiber portal unmount crash
+    useEffect(() => {
+        return () => {
+            setMainMesh(null);
+            setFrontDecalTexture(null);
+            setBackDecalTexture(null);
+        };
+    }, []);
+
     const [frontDecalTexture, setFrontDecalTexture] = useState(null);
     const [backDecalTexture, setBackDecalTexture] = useState(null);
     const [frontDecalState, setFrontDecalState] = useState(null);
@@ -230,7 +239,7 @@ export default function TShirtModel({
             const parentPos = new THREE.Vector3(
                 decalProps.position[0],
                 decalProps.position[1],
-                side === "Back" ? -0.07 : 0.07
+                side === "Back" ? -0.15 : 0.15
             );
 
             // Transform parentPos to world space, then to mainMesh local space
@@ -241,7 +250,7 @@ export default function TShirtModel({
             const localScale = new THREE.Vector3(
                 decalProps.scale[0],
                 decalProps.scale[1],
-                0.08
+                0.4
             );
             const worldScale = new THREE.Vector3();
             rootRef.current.getWorldScale(worldScale);
@@ -313,7 +322,7 @@ export default function TShirtModel({
                         alphaTest={0.01}
                         roughness={0.7}
                         metalness={0.1}
-                        depthWrite={false}
+                        depthWrite={true}
                         polygonOffset
                         polygonOffsetFactor={-10}
                     />
@@ -333,7 +342,7 @@ export default function TShirtModel({
                         alphaTest={0.01}
                         roughness={0.7}
                         metalness={0.1}
-                        depthWrite={false}
+                        depthWrite={true}
                         polygonOffset
                         polygonOffsetFactor={-10}
                     />

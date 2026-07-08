@@ -22,25 +22,32 @@ function ScrollFrameAnimation() {
 
   // Preload all images
   useEffect(() => {
+    let active = true;
     const images = [];
-    let loaded = 0;
 
-    for (let i = 0; i < frameCount; i++) {
-      const img = new Image();
-      img.src = getFramePath(i);
-      img.onload = () => {
-        loaded++;
-        setLoadedCount(loaded);
-        if (loaded === frameCount) {
-          setAllLoaded(true);
-        }
-      };
-      images.push(img);
-    }
-
-    imagesRef.current = images;
+    // Defer preloading to let critical API calls execute first
+    const timer = setTimeout(() => {
+      if (!active) return;
+      let loaded = 0;
+      for (let i = 0; i < frameCount; i++) {
+        const img = new Image();
+        img.src = getFramePath(i);
+        img.onload = () => {
+          if (!active) return;
+          loaded++;
+          setLoadedCount(loaded);
+          if (loaded === frameCount) {
+            setAllLoaded(true);
+          }
+        };
+        images.push(img);
+      }
+      imagesRef.current = images;
+    }, 800);
 
     return () => {
+      active = false;
+      clearTimeout(timer);
       images.forEach((img) => {
         img.onload = null;
       });

@@ -78,7 +78,7 @@ function Navbar() {
                 fontFamily: "'Outfit', sans-serif",
                 position: "sticky",
                 top: 0,
-                zIndex: 1000,
+                zIndex: 99999,
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "space-between",
@@ -389,6 +389,28 @@ function Navbar() {
                                                 }}>{customerUser.address}</span>
                                             </div>
                                         )}
+
+                                        {/* My Orders Link */}
+                                        <Link
+                                            to="/my-orders"
+                                            onClick={() => setProfileDropdownOpen(false)}
+                                            style={{
+                                                display: "flex",
+                                                alignItems: "center",
+                                                gap: "8px",
+                                                padding: "8px 16px",
+                                                fontSize: "12px",
+                                                fontWeight: 700,
+                                                color: "#cc0000",
+                                                textDecoration: "none",
+                                                transition: "background 0.2s"
+                                            }}
+                                            onMouseEnter={e => e.currentTarget.style.background = "#fff1f1"}
+                                            onMouseLeave={e => e.currentTarget.style.background = "none"}
+                                        >
+                                            <span>📦</span>
+                                            <span>My Orders</span>
+                                        </Link>
 
                                         <hr style={{ border: 0, borderTop: "1px solid #f3f4f6", margin: "8px 0" }} />
 

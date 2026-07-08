@@ -155,6 +155,33 @@ function DesignStudio() {
         }
     }, [isSelected, render3D, pendingTransitionUrl, navigate]);
 
+    // Intercept clicks to navigate away and unmount 3D canvas safely first
+    useEffect(() => {
+        const handleGlobalClick = (e) => {
+            const anchor = e.target.closest("a");
+            if (anchor) {
+                const href = anchor.getAttribute("href");
+                // If it is a navigation route to another page
+                if (href && href.startsWith("/") && !href.startsWith("/design-studio")) {
+                    console.log("[DesignStudio] Navigating away. Safely unmounting 3D Canvas first for target:", href);
+                    e.preventDefault();
+                    e.stopPropagation();
+
+                    // 1. Disable 3D render to trigger clean unmount
+                    setRender3D(false);
+
+                    // 2. Execute router transition after 150ms
+                    setTimeout(() => {
+                        navigate(href);
+                    }, 150);
+                }
+            }
+        };
+
+        window.addEventListener("click", handleGlobalClick, true); // Capture phase intercept
+        return () => window.removeEventListener("click", handleGlobalClick, true);
+    }, [navigate]);
+
     const [debugInfo, setDebugInfo] = useState({
         status: "Connecting to 3D Canvas...",
         boxSize: "",
@@ -355,6 +382,7 @@ function DesignStudio() {
                 setDirectCheckoutItem({ product: customizedProduct, size, qty: 1, design: tempDesign, unitPrice: totalUnitPrice });
 
                 setIsSelected(false);
+                setRender3D(false);
                 const user = localStorage.getItem("customerUser");
                 if (user) {
                     setPendingTransitionUrl("/checkout?direct=true");

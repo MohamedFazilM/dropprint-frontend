@@ -20,6 +20,7 @@ import FAQ from "./pages/FAQ";
 import Customize from "./pages/Customize";
 import Wishlist from "./pages/Wishlist";
 import Login from "./pages/Login";
+import MyOrders from "./pages/MyOrders";
 
 import AdminLogin from "./pages/admin/AdminLogin";
 import AdminDashboard from "./pages/admin/AdminDashboard";
@@ -70,6 +71,7 @@ function App() {
       <Route path="/login" element={<div className="flex flex-col min-h-screen"><Navbar /><main className="flex-grow"><Login /></main></div>} />
       <Route path="/customize" element={<PublicLayout><Customize /></PublicLayout>} />
       <Route path="/design-studio" element={<PublicLayout><DesignStudio /></PublicLayout>} />
+      <Route path="/my-orders" element={<PublicLayout><MyOrders /></PublicLayout>} />
       <Route path="/product/:id" element={<PublicLayout><ProductDetail /></PublicLayout>} />
       <Route path="/track-order" element={<PublicLayout><TrackOrder /></PublicLayout>} />
       <Route path="/pricing" element={<PublicLayout><Pricing /></PublicLayout>} />
