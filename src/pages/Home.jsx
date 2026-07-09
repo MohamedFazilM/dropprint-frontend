@@ -108,7 +108,7 @@ function Home() {
                 <div className="hero-3d-sticky"
                     style={{ height: `${vh}px` }} >
                     {/* FULL-SCREEN canvas behind everything */}
-                    {!isMobile && <ScrollFrameAnimation />}
+                    <ScrollFrameAnimation />
 
                     {/* LEFT: Text content overlay */}
                     <div className="hero-3d-content" >
