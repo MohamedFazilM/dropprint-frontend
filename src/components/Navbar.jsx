@@ -371,7 +371,7 @@ function Navbar() {
 
 
                     {/* Hamburger Button */}
-                    {isMobile && (
+                    {isMobile && location.pathname !== "/login" && (
                         <button
                             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
                             style={{

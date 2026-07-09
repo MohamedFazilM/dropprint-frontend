@@ -9,7 +9,7 @@ import useCartStore from "../store/cartStore";
 import TShirtViewer from "../components/TShirtViewer";
 
 const PRINT_AREAS = ["Front", "Back"];
-const PRICE_ADDON = 249;
+const BASE_PRICE_ADDON = 99;
 
 // T-shirt background Konva layer
 function TShirtBackground({ imageUrl }) {
@@ -102,11 +102,11 @@ function DesignStudio() {
     const setDirectCheckoutItem = useCartStore((state) => state.setDirectCheckoutItem);
 
     const [allProducts, setAllProducts] = useState([
-        { id: 1, name: "Premium Drop-Shoulder Tee", basePrice: 249, color: "White" },
+        { id: 1, name: "Base Tee", basePrice: 249, color: "White" },
         { id: 2, name: "Heavyweight Oversized Tee", basePrice: 349, color: "Black" },
         { id: 3, name: "Luxury Streetwear Tee", basePrice: 449, color: "Gray" }
     ]);
-    const [product, setProduct] = useState({ id: 1, name: "Premium Drop-Shoulder Tee", basePrice: 249, color: "White" });
+    const [product, setProduct] = useState({ id: 1, name: "Base Tee", basePrice: 249, color: "White" });
     const [printArea, setPrintArea] = useState("Front");
     const [frontFile, setFrontFile] = useState(null);
     const [frontPreviewUrl, setFrontPreviewUrl] = useState(null);
@@ -131,6 +131,9 @@ function DesignStudio() {
     const [isSelected, setIsSelected] = useState(false);
     const [pendingTransitionUrl, setPendingTransitionUrl] = useState(null);
     const [render3D, setRender3D] = useState(true);
+
+    // Calculate customization charge based on uploaded graphics (₹249 per side)
+    const priceAddon = (frontFile && backFile) ? (BASE_PRICE_ADDON * 2) : BASE_PRICE_ADDON;
 
     // Controls
     const [isOrbiting, setIsOrbiting] = useState(false);
@@ -215,15 +218,9 @@ function DesignStudio() {
                 console.log("[DesignStudio] Could not fetch product by ID, using local template:", err);
             });
         } else {
-            axiosClient.get("/products").then((res) => {
-                if (res.data && res.data.length > 0) {
-                    setAllProducts(res.data);
-                    setProduct(res.data[0]);
-                    if (res.data[0].color) setSelectedColor(res.data[0].color);
-                }
-            }).catch((err) => {
-                console.log("[DesignStudio] Using local fallback apparel templates:", err);
-            });
+            // Keep the clean custom blank templates for design studio base selection
+            setProduct(allProducts[0]);
+            if (allProducts[0].color) setSelectedColor(allProducts[0].color);
         }
     }, [productId]);
 
@@ -383,7 +380,7 @@ function DesignStudio() {
                     } : null
                 };
 
-                const totalUnitPrice = product.basePrice + PRICE_ADDON;
+                const totalUnitPrice = product.basePrice + priceAddon;
                 const customizedProduct = {
                     ...product,
                     color: selectedColor,
@@ -467,7 +464,7 @@ function DesignStudio() {
                 front: uploadedFront,
                 back: uploadedBack
             };
-            const totalUnitPrice = product.basePrice + PRICE_ADDON;
+            const totalUnitPrice = product.basePrice + priceAddon;
 
             const customizedProduct = {
                 ...product,
@@ -544,7 +541,7 @@ function DesignStudio() {
         return getDecalProps(backPreviewUrl, backDesignImage, backShapeProps, "Back");
     }, [backPreviewUrl, backDesignImage, backShapeProps]);
 
-    const totalPrice = product ? product.basePrice + PRICE_ADDON : PRICE_ADDON;
+    const totalPrice = product ? product.basePrice + priceAddon : priceAddon;
 
     return (
         <div style={{ fontFamily: "'Outfit', sans-serif" }} className="bg-gradient-to-br from-zinc-50 via-zinc-100 to-zinc-200 min-h-screen py-12 px-4 md:px-8 relative overflow-hidden">
@@ -879,7 +876,7 @@ function DesignStudio() {
                                                 title="Pick Custom Color"
                                             />
                                             <div className="absolute inset-0 flex items-center justify-center pointer-events-none bg-black/10 text-white font-extrabold text-[9px]">
-                                                🌈
+
                                             </div>
                                         </div>
                                     );
@@ -917,7 +914,7 @@ function DesignStudio() {
                             </div>
                             <div className="flex justify-between text-zinc-500">
                                 <span className="font-medium">Graphic Customization Add-on</span>
-                                <span className="font-bold text-zinc-800">₹{PRICE_ADDON}</span>
+                                <span className="font-bold text-zinc-800">₹{priceAddon}</span>
                             </div>
                             <div className="flex justify-between font-extrabold border-t border-zinc-200 pt-3.5 mt-1 text-sm text-zinc-950">
                                 <span>Unit Checkout Cost</span>

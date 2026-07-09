@@ -310,7 +310,7 @@ function Login() {
                                 ⚠️ {error}
                             </div>
                         )}
-
+ 
                         {successMsg && (
                             <div style={{
                                 background: "#f3faf7",
@@ -325,7 +325,7 @@ function Login() {
                                 ✅ {successMsg}
                             </div>
                         )}
-
+ 
                         {/* Fields */}
                         {!isLoginMode && (
                             <div>
@@ -333,6 +333,7 @@ function Login() {
                                 <input
                                     type="text"
                                     required
+                                    disabled={loading}
                                     value={name}
                                     onChange={(e) => setName(e.target.value)}
                                     placeholder="Lionel Messi"
@@ -340,31 +341,33 @@ function Login() {
                                 />
                             </div>
                         )}
-
+ 
                         <div>
                             <label style={{ fontSize: "11px", fontWeight: 700, color: "#71717a", textTransform: "uppercase", letterSpacing: "0.5px", display: "block", marginBottom: "6px" }}>Email Address</label>
                             <input
                                 type="email"
                                 required
+                                disabled={loading}
                                 value={email}
                                 onChange={(e) => setEmail(e.target.value)}
                                 placeholder="Messi@example.com"
                                 className="login-input"
                             />
                         </div>
-
+ 
                         <div>
                             <label style={{ fontSize: "11px", fontWeight: 700, color: "#71717a", textTransform: "uppercase", letterSpacing: "0.5px", display: "block", marginBottom: "6px" }}>Password</label>
                             <input
                                 type="password"
                                 required
+                                disabled={loading}
                                 value={password}
                                 onChange={(e) => setPassword(e.target.value)}
                                 placeholder="••••••••"
                                 className="login-input"
                             />
                         </div>
-
+ 
                         {!isLoginMode && (
                             <>
                                 <div>
@@ -372,17 +375,19 @@ function Login() {
                                     <input
                                         type="tel"
                                         required
+                                        disabled={loading}
                                         value={phone}
                                         onChange={(e) => setPhone(e.target.value)}
                                         placeholder="+91 XXXXX XXXXX"
                                         className="login-input"
                                     />
                                 </div>
-
+ 
                                 <div>
                                     <label style={{ fontSize: "11px", fontWeight: 700, color: "#71717a", textTransform: "uppercase", letterSpacing: "0.5px", display: "block", marginBottom: "6px" }}>Delivery Address</label>
                                     <textarea
                                         required
+                                        disabled={loading}
                                         value={address}
                                         onChange={(e) => setAddress(e.target.value)}
                                         placeholder="Enter complete shipping address"
@@ -393,24 +398,33 @@ function Login() {
                                 </div>
                             </>
                         )}
-
+ 
                         {/* Submit Button */}
                         <button
                             type="submit"
                             disabled={loading}
                             className="login-btn"
                         >
-                            {loading ? "Processing..." : (isLoginMode ? "Login" : "Sign Up")}
+                            {loading ? (
+                                <div className="flex-center-gap">
+                                    <div className="login-spinner"></div>
+                                    <span>Please Wait...</span>
+                                </div>
+                            ) : (
+                                isLoginMode ? "Login" : "Sign Up"
+                            )}
                         </button>
-
+ 
                         {/* Toggle login modes */}
                         <div style={{ textAlign: "center", marginTop: "14px" }}>
                             <button
                                 type="button"
+                                disabled={loading}
                                 onClick={() => {
                                     setIsLoginMode(!isLoginMode);
                                 }}
                                 className="login-toggle"
+                                style={{ opacity: loading ? 0.5 : 1, cursor: loading ? "not-allowed" : "pointer" }}
                             >
                                 {isLoginMode ? "Don't have an account? Sign Up" : "Already have a profile? Login"}
                             </button>
@@ -418,9 +432,26 @@ function Login() {
                     </form>
                 </div>
             </div>
-
+ 
             {/* Global style classes for focus/hover states */}
             <style>{`
+                @keyframes spin {
+                    to { transform: rotate(360deg); }
+                }
+                .login-spinner {
+                    width: 16px;
+                    height: 16px;
+                    border: 2px solid rgba(255, 255, 255, 0.3);
+                    border-top-color: #fff;
+                    border-radius: 50%;
+                    animation: spin 0.6s linear infinite;
+                }
+                .flex-center-gap {
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    gap: 8px;
+                }
                 .login-input {
                     width: 100%;
                     padding: 12px 16px;
@@ -434,6 +465,12 @@ function Login() {
                 .login-input:focus {
                     border-color: #cc0000;
                     box-shadow: 0 0 0 3px rgba(204, 0, 0, 0.12);
+                }
+                .login-input:disabled {
+                    background: #f4f4f5;
+                    color: #a1a1aa;
+                    cursor: not-allowed;
+                    border-color: #e4e4e7;
                 }
                 .login-btn {
                     width: 100%;
@@ -451,12 +488,12 @@ function Login() {
                     transition: all 0.2s ease;
                     font-family: 'Outfit', sans-serif;
                 }
-                .login-btn:hover {
+                .login-btn:hover:not(:disabled) {
                     background: linear-gradient(135deg, #e60000 0%, #b30000 100%);
                     box-shadow: 0 6px 18px rgba(204,0,0,0.28);
                     transform: translateY(-1px);
                 }
-                .login-btn:active {
+                .login-btn:active:not(:disabled) {
                     transform: translateY(0);
                 }
                 .login-btn:disabled {
@@ -477,12 +514,12 @@ function Login() {
                     font-family: 'Outfit', sans-serif;
                     text-decoration: underline;
                 }
-                .login-toggle:hover {
+                .login-toggle:hover:not(:disabled) {
                     color: #990000;
                 }
             `}</style>
         </div>
     );
 }
-
+ 
 export default Login;
