@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import axiosClient from "../api/axiosClient";
 
@@ -7,6 +7,7 @@ function MyOrders() {
     const [orders, setOrders] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
+    const [searchQuery, setSearchQuery] = useState("");
 
     useEffect(() => {
         const fetchOrders = async () => {
@@ -31,10 +32,73 @@ function MyOrders() {
         fetchOrders();
     }, [navigate]);
 
+    // Real-time search filter by product name or order ID
+    const filteredOrders = useMemo(() => {
+        if (!searchQuery.trim()) return orders;
+        const query = searchQuery.toLowerCase().trim();
+        return orders.filter((order) => {
+            const matchesId = order.id.toLowerCase().includes(query);
+            const matchesProduct = order.items?.some((item) =>
+                item.product.name.toLowerCase().includes(query)
+            );
+            return matchesId || matchesProduct;
+        });
+    }, [orders, searchQuery]);
+
+    const getStatusDotColor = (status) => {
+        switch (status?.toLowerCase()) {
+            case "placed":
+                return "bg-[#2874f0]"; // Flipkart blue
+            case "shipped":
+                return "bg-[#ff9f00]"; // Flipkart orange
+            case "delivered":
+                return "bg-[#388e3c]"; // Flipkart green
+            case "cancelled":
+                return "bg-[#ff6161]"; // Red
+            default:
+                return "bg-zinc-400";
+        }
+    };
+
+    const getStatusText = (status, dateStr) => {
+        const formattedDate = new Date(dateStr).toLocaleDateString("en-US", {
+            year: "numeric",
+            month: "short",
+            day: "numeric",
+        });
+        switch (status?.toLowerCase()) {
+            case "placed":
+                return `Ordered on ${formattedDate}`;
+            case "shipped":
+                return "Shipped - On the Way";
+            case "delivered":
+                return `Delivered on ${formattedDate}`;
+            case "cancelled":
+                return "Cancelled";
+            default:
+                return status || "Placed";
+        }
+    };
+
+    const getStatusDescription = (status) => {
+        switch (status?.toLowerCase()) {
+            case "placed":
+                return "Your order has been placed and is being prepared.";
+            case "shipped":
+                return "Your item has been dispatched and is on the way.";
+            case "delivered":
+                return "Your item has been delivered.";
+            case "cancelled":
+                return "This order was cancelled.";
+            default:
+                return "";
+        }
+    };
+
     if (loading) {
         return (
-            <div className="min-h-[70vh] flex flex-col items-center justify-center bg-gray-50/50" style={{ fontFamily: "'Outfit', sans-serif" }}>
-                <div className="w-10 h-10 border-4 border-red-600 border-t-transparent rounded-full animate-spin"></div>
+            <div className="min-h-[70vh] flex flex-col items-center justify-center bg-[#f1f3f6]" style={{ fontFamily: "'Outfit', sans-serif" }}>
+                <div className="w-10 h-10 border-4 border-[#2874f0] border-t-transparent rounded-full animate-spin"></div>
                 <span className="text-xs font-bold text-gray-500 uppercase tracking-widest mt-4">Loading your orders...</span>
             </div>
         );
@@ -42,7 +106,7 @@ function MyOrders() {
 
     if (error) {
         return (
-            <div className="min-h-[70vh] flex flex-col items-center justify-center bg-gray-50/50 px-4" style={{ fontFamily: "'Outfit', sans-serif" }}>
+            <div className="min-h-[70vh] flex flex-col items-center justify-center bg-[#f1f3f6] px-4" style={{ fontFamily: "'Outfit', sans-serif" }}>
                 <span className="text-3xl mb-2">⚠️</span>
                 <h2 className="text-xl font-extrabold text-gray-900 mb-2">Something went wrong</h2>
                 <p className="text-sm text-gray-500 mb-6 text-center max-w-sm">{error}</p>
@@ -53,107 +117,80 @@ function MyOrders() {
         );
     }
 
-    if (orders.length === 0) {
-        return (
-            <div className="min-h-[70vh] flex flex-col items-center justify-center bg-gray-50/50 px-4" style={{ fontFamily: "'Outfit', sans-serif" }}>
-                <div className="w-32 h-32 text-gray-200 mb-6">
-                    <svg className="w-full h-full" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
-                    </svg>
-                </div>
-                <h1 className="text-2xl font-extrabold text-gray-900 mb-2">No Orders Yet</h1>
-                <p className="text-gray-500 mb-8 text-center max-w-sm leading-relaxed">
-                    You haven't placed any orders yet. Start creating your custom oversized tees now!
-                </p>
-                <Link to="/design-studio" className="bg-[#cc0000] text-white px-8 py-3.5 rounded-2xl font-bold shadow-[0_4px_18px_rgba(204,0,0,0.2)] hover:bg-[#b30000] transition-all hover:scale-[1.02]">
-                    Design a T-Shirt
-                </Link>
-            </div>
-        );
-    }
-
-    const getStatusStyle = (status) => {
-        switch (status?.toLowerCase()) {
-            case "placed":
-                return "bg-blue-50 text-blue-700 border-blue-100";
-            case "shipped":
-                return "bg-orange-50 text-orange-700 border-orange-100";
-            case "delivered":
-                return "bg-green-50 text-green-700 border-green-100";
-            case "cancelled":
-                return "bg-red-50 text-red-700 border-red-100";
-            default:
-                return "bg-gray-50 text-gray-700 border-gray-100";
-        }
-    };
-
     return (
-        <div className="min-h-screen bg-gray-50/50 pb-24 pt-8" style={{ fontFamily: "'Outfit', sans-serif" }}>
-            <div className="max-w-4xl mx-auto px-4 md:px-6">
-                {/* Header */}
-                <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-10 border-b border-gray-100 pb-6">
+        <div className="min-h-screen bg-[#f1f3f6] pb-24 pt-6" style={{ fontFamily: "'Outfit', sans-serif" }}>
+            <div className="max-w-5xl mx-auto px-4 sm:px-6">
+                
+                {/* Search Bar & Header */}
+                <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
                     <div>
-                        <h1 className="text-3xl font-extrabold text-gray-900 tracking-tight">My Orders</h1>
-                        <p className="text-sm text-gray-500 mt-1 font-medium">Track and manage your order history</p>
+                        <h1 className="text-2xl font-extrabold text-gray-900 tracking-tight">My Orders</h1>
+                        <p className="text-xs text-gray-500 mt-0.5 font-medium">Manage and track your customized clothes</p>
                     </div>
-                    <Link to="/shop" className="text-sm font-bold text-[#cc0000] hover:text-[#b30000] transition-colors flex items-center gap-1 group">
-                        <span className="transition-transform group-hover:-translate-x-0.5">←</span> Continue Shopping
-                    </Link>
+                    
+                    {/* Real-time search bar */}
+                    <div className="w-full md:w-80 relative">
+                        <input
+                            type="text"
+                            placeholder="Search your orders here..."
+                            value={searchQuery}
+                            onChange={(e) => setSearchQuery(e.target.value)}
+                            className="w-full px-4 py-2.5 pl-10 pr-4 bg-white border border-gray-200 rounded-lg text-sm font-semibold focus:outline-none focus:border-[#2874f0] focus:ring-0 transition-colors shadow-sm"
+                        />
+                        <span className="absolute left-3.5 top-3.5 text-gray-400 text-sm">🔍</span>
+                        {searchQuery && (
+                            <button
+                                onClick={() => setSearchQuery("")}
+                                className="absolute right-3.5 top-3.5 text-xs text-gray-400 hover:text-gray-600 font-extrabold"
+                            >
+                                Clear
+                            </button>
+                        )}
+                    </div>
                 </div>
 
-                {/* Orders List */}
-                <div className="space-y-8">
-                    {orders.map((order) => (
-                        <div key={order.id} className="bg-white rounded-3xl border border-gray-100/80 shadow-[0_4px_24px_rgba(0,0,0,0.015)] overflow-hidden">
-                            {/* Order Header */}
-                            <div className="bg-gray-50/70 border-b border-gray-100 p-6 flex flex-wrap justify-between items-center gap-4 text-xs font-bold text-gray-500 uppercase tracking-wider">
-                                <div className="flex gap-6 flex-wrap">
-                                    <div>
-                                        <p className="text-[10px] text-gray-400 mb-1">Order Placed</p>
-                                        <p className="text-gray-800 font-extrabold">
-                                            {new Date(order.createdAt).toLocaleDateString("en-US", {
-                                                year: "numeric",
-                                                month: "short",
-                                                day: "numeric",
-                                            })}
-                                        </p>
-                                    </div>
-                                    <div>
-                                        <p className="text-[10px] text-gray-400 mb-1">Total Price</p>
-                                        <p className="text-gray-800 font-extrabold">₹{order.totalPrice}</p>
-                                    </div>
-                                    <div>
-                                        <p className="text-[10px] text-gray-400 mb-1">Order ID</p>
-                                        <p className="text-gray-800 font-extrabold">{order.id}</p>
-                                    </div>
-                                </div>
-                                <div className="flex gap-2">
-                                    <span className={`border px-3 py-1 rounded-full uppercase text-[10px] ${getStatusStyle(order.status)}`}>
-                                        {order.status}
-                                    </span>
-                                    <span className={`border px-3 py-1 rounded-full uppercase text-[10px] ${order.paymentStatus === "paid" ? "bg-green-50 text-green-700 border-green-100" : "bg-yellow-50 text-yellow-700 border-yellow-100"}`}>
-                                        Payment: {order.paymentStatus}
-                                    </span>
-                                </div>
-                            </div>
+                {filteredOrders.length === 0 ? (
+                    <div className="bg-white rounded-xl border border-gray-200 p-12 flex flex-col items-center justify-center shadow-sm">
+                        <div className="w-24 h-24 text-gray-200 mb-6">
+                            <svg className="w-full h-full" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+                            </svg>
+                        </div>
+                        <h2 className="text-xl font-extrabold text-gray-950 mb-2">No matching orders</h2>
+                        <p className="text-sm text-gray-400 text-center max-w-xs mb-6">
+                            {searchQuery ? "We couldn't find any orders matching your search." : "You haven't placed any orders yet."}
+                        </p>
+                        <Link to="/design-studio" className="bg-[#cc0000] text-white px-6 py-3 rounded-xl font-extrabold text-xs uppercase tracking-wider hover:bg-[#b30000] transition-colors">
+                            Design a T-Shirt
+                        </Link>
+                    </div>
+                ) : (
+                    /* Orders Flat Cards List */
+                    <div className="space-y-4">
+                        {filteredOrders.map((order) => 
+                            order.items?.map((item) => {
+                                const hasFront = !!item.design?.front?.fileUrl || (item.design?.printArea !== "Back" && !!item.design?.fileUrl);
+                                const hasBack = !!item.design?.back?.fileUrl || (item.design?.printArea === "Back" && !!item.design?.fileUrl);
+                                const frontUrl = item.design?.front?.fileUrl || (item.design?.printArea !== "Back" ? item.design?.fileUrl : null);
+                                const backUrl = item.design?.back?.fileUrl || (item.design?.printArea === "Back" ? item.design?.fileUrl : null);
 
-                            {/* Order Items */}
-                            <div className="p-6 divide-y divide-gray-100">
-                                {order.items?.map((item) => {
-                                    const hasFront = !!item.design?.front?.fileUrl || (item.design?.printArea !== "Back" && !!item.design?.fileUrl);
-                                    const hasBack = !!item.design?.back?.fileUrl || (item.design?.printArea === "Back" && !!item.design?.fileUrl);
-                                    const frontUrl = item.design?.front?.fileUrl || (item.design?.printArea !== "Back" ? item.design?.fileUrl : null);
-                                    const backUrl = item.design?.back?.fileUrl || (item.design?.printArea === "Back" ? item.design?.fileUrl : null);
+                                const showBack = hasBack && !hasFront;
+                                const shirtImage = showBack && item.product.imageBack
+                                    ? item.product.imageBack
+                                    : (item.product.imageMain || "https://placehold.co/400x500/f3f4f6/9ca3af?text=No+Image");
 
-                                    const showBack = hasBack && !hasFront;
-                                    const shirtImage = showBack && item.product.imageBack
-                                        ? item.product.imageBack
-                                        : (item.product.imageMain || "https://placehold.co/400x500/f3f4f6/9ca3af?text=No+Image");
-
-                                    return (
-                                        <div key={item.id} className="py-5 flex gap-4 sm:gap-6 items-center first:pt-0 last:pb-0">
-                                            {/* Image preview */}
-                                            <div className="relative w-16 h-20 bg-gray-50 border border-gray-100 rounded-xl overflow-hidden flex items-center justify-center p-1 flex-shrink-0">
+                                return (
+                                    <div 
+                                        key={item.id} 
+                                        className="bg-white border border-gray-200/80 rounded-lg p-5 flex flex-col md:flex-row justify-between items-start md:items-center gap-6 hover:shadow-md transition-shadow duration-200 cursor-pointer"
+                                        onClick={() => navigate(`/track-order?orderId=${order.id}&phone=${order.customer?.phone || ""}`)}
+                                    >
+                                        
+                                        {/* Left: Product Image & Details */}
+                                        <div className="flex gap-4 items-center flex-1 w-full">
+                                            
+                                            {/* Thumbnail Image Stack */}
+                                            <div className="relative w-16 h-20 bg-gray-50 border border-gray-100 rounded-lg overflow-hidden flex items-center justify-center p-1.5 flex-shrink-0">
                                                 <img
                                                     src={shirtImage}
                                                     alt={item.product.name}
@@ -162,48 +199,82 @@ function MyOrders() {
                                                 />
                                                 {showBack ? (
                                                     backUrl && (
-                                                        <div className="absolute inset-0 flex items-center justify-center p-2.5">
+                                                        <div className="absolute inset-0 flex items-center justify-center p-2">
                                                             <img src={backUrl} className="w-[45%] h-[45%] object-contain mt-0.5" />
                                                         </div>
                                                     )
                                                 ) : (
                                                     frontUrl && (
-                                                        <div className="absolute inset-0 flex items-center justify-center p-2.5">
+                                                        <div className="absolute inset-0 flex items-center justify-center p-2">
                                                             <img src={frontUrl} className="w-[45%] h-[45%] object-contain mt-0.5" />
                                                         </div>
                                                     )
                                                 )}
                                                 {item.design && (
-                                                    <span className="absolute bottom-0.5 right-0.5 text-[6px] bg-red-600 text-white font-extrabold px-1 py-0.2 rounded uppercase">
+                                                    <span className="absolute bottom-0.5 left-0.5 text-[6px] bg-zinc-950 text-white font-extrabold px-1 py-0.2 rounded uppercase">
                                                         Custom
                                                     </span>
                                                 )}
                                             </div>
 
-                                            {/* Details */}
-                                            <div className="flex-grow">
-                                                <h4 className="font-extrabold text-gray-900 text-sm line-clamp-1">{item.product.name}</h4>
-                                                <div className="flex gap-2 flex-wrap items-center mt-1 text-[11px] font-bold text-gray-400">
+                                            {/* Description text */}
+                                            <div className="space-y-1">
+                                                <h4 className="font-extrabold text-gray-900 text-sm md:text-base line-clamp-1 hover:text-[#2874f0] transition-colors">
+                                                    {item.product.name}
+                                                </h4>
+                                                <div className="flex gap-2 flex-wrap items-center text-[11px] font-bold text-gray-400">
                                                     <span className="uppercase">{item.product.color}</span>
                                                     <span>•</span>
                                                     <span>Size: {item.size}</span>
                                                     <span>•</span>
                                                     <span>Qty: {item.qty}</span>
                                                 </div>
-                                            </div>
-
-                                            {/* Price */}
-                                            <div className="text-right flex-shrink-0">
-                                                <p className="font-black text-gray-900 text-sm">₹{item.price * item.qty}</p>
-                                                <p className="text-[10px] font-bold text-gray-400 mt-0.5">₹{item.price} each</p>
+                                                <p className="text-sm font-extrabold text-gray-950 mt-1 md:hidden">
+                                                    ₹{item.price * item.qty}
+                                                </p>
                                             </div>
                                         </div>
-                                    );
-                                })}
-                            </div>
-                        </div>
-                    ))}
-                </div>
+
+                                        {/* Middle: Price (for desktop view) */}
+                                        <div className="hidden md:block w-32 flex-shrink-0 text-left">
+                                            <p className="font-extrabold text-gray-950 text-base">
+                                                ₹{item.price * item.qty}
+                                            </p>
+                                            <p className="text-[10px] font-bold text-gray-400 mt-0.5">
+                                                ₹{item.price} each
+                                            </p>
+                                        </div>
+
+                                        {/* Right: Status Tracker Indicator */}
+                                        <div className="flex flex-col items-start md:items-end gap-1 w-full md:w-64 flex-shrink-0 border-t md:border-t-0 pt-4 md:pt-0">
+                                            <div className="flex items-center gap-2">
+                                                <span className={`w-2.5 h-2.5 rounded-full ${getStatusDotColor(order.status)}`}></span>
+                                                <span className="font-extrabold text-sm text-gray-800">
+                                                    {getStatusText(order.status, order.createdAt)}
+                                                </span>
+                                            </div>
+                                            <p className="text-xs text-gray-400 font-semibold md:text-right">
+                                                {getStatusDescription(order.status)}
+                                            </p>
+                                            <div className="flex items-center gap-3 mt-3 w-full md:justify-end text-[10px] font-bold text-gray-400">
+                                                <span>ID: #{order.id}</span>
+                                                <span>•</span>
+                                                <Link 
+                                                    to={`/track-order?orderId=${order.id}&phone=${order.customer?.phone || ""}`}
+                                                    className="text-[#2874f0] hover:underline flex items-center gap-0.5"
+                                                    onClick={(e) => e.stopPropagation()}
+                                                >
+                                                    Track Order ➜
+                                                </Link>
+                                            </div>
+                                        </div>
+
+                                    </div>
+                                );
+                            })
+                        )}
+                    </div>
+                )}
             </div>
         </div>
     );

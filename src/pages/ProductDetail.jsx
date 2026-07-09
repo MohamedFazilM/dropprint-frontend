@@ -44,7 +44,32 @@ function ProductDetail() {
 
     useEffect(() => {
         window.scrollTo(0, 0);
-        setLoading(true);
+        
+        // 1. Try to load product instantly from the cached list
+        const cached = localStorage.getItem("cached_products");
+        let foundInCache = false;
+        if (cached) {
+            try {
+                const all = JSON.parse(cached);
+                const match = all.find(p => String(p.id) === String(id));
+                if (match) {
+                    setProduct(match);
+                    const filtered = all.filter(p => String(p.id) !== String(id));
+                    setSimilarProducts(filtered.sort(() => 0.5 - Math.random()).slice(0, 4));
+                    setLoading(false); // Stop loading spinner, render immediately!
+                    foundInCache = true;
+                }
+            } catch (e) {
+                // Ignore cache parsing errors
+            }
+        }
+
+        // Show spinner only if product is not in the cache yet
+        if (!foundInCache) {
+            setLoading(true);
+        }
+
+        // 2. Fetch fresh details from API
         axiosClient.get(`/products/${id}`)
             .then((res) => {
                 setProduct(res.data);
@@ -52,6 +77,8 @@ function ProductDetail() {
             })
             .then((res) => {
                 const all = res.data;
+                // Update cached_products with fresh list
+                localStorage.setItem("cached_products", JSON.stringify(all));
                 const filtered = all.filter(p => String(p.id) !== String(id));
                 setSimilarProducts(filtered.sort(() => 0.5 - Math.random()).slice(0, 4));
                 setLoading(false);
@@ -89,11 +116,11 @@ function ProductDetail() {
     const discountPct = Math.round(((originalPrice - product.basePrice) / originalPrice) * 100);
 
     return (
-        <div className="max-w-6xl mx-auto px-6 py-10" style={{ fontFamily: "'Outfit', sans-serif" }}>
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 py-10" style={{ fontFamily: "'Outfit', sans-serif" }}>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
 
                 {/* ── Left: Image Gallery ── */}
-                <div className="flex flex-col gap-4 h-fit sticky top-24 self-start">
+                <div className="flex flex-col gap-4 h-fit md:sticky md:top-24 self-start">
                     <div className="w-full bg-gray-50/50 border border-gray-100 rounded-3xl overflow-hidden shadow-sm flex items-center justify-center p-2 relative group">
                         {product.imageBack && (
                             <>
@@ -116,7 +143,8 @@ function ProductDetail() {
                         <img
                             src={activeImage === "back" && product.imageBack ? product.imageBack : (product.imageMain || "https://via.placeholder.com/500x600?text=Drop+Shoulder+Tee")}
                             alt={product.name}
-                            className="w-full h-[400px] md:h-[600px] rounded-2xl object-contain transition-transform duration-300"
+                            className="w-full h-[300px] sm:h-[450px] md:h-[600px] rounded-2xl object-contain transition-transform duration-300"
+                            fetchPriority="high"
                         />
                     </div>
 
@@ -143,7 +171,7 @@ function ProductDetail() {
 
                     {/* Name + Share */}
                     <div className="flex items-start justify-between gap-4">
-                        <h1 className="text-3xl md:text-4xl font-extrabold text-gray-900 tracking-tight leading-tight">
+                        <h1 className="text-2xl sm:text-3xl md:text-4xl font-extrabold text-gray-900 tracking-tight leading-tight">
                             {product.name}
                         </h1>
                         {/* 7. Share Button */}
@@ -166,7 +194,7 @@ function ProductDetail() {
                     </div>
 
                     {/* Rating Row */}
-                    <div className="flex items-center gap-3">
+                    <div className="flex flex-wrap items-center gap-3">
                         <div className="flex items-center gap-1.5 bg-green-600 text-white text-xs font-bold px-2.5 py-1 rounded-md">
                             <span>4.3</span>
                             <svg width="11" height="11" viewBox="0 0 24 24" fill="white" stroke="none">
@@ -189,10 +217,10 @@ function ProductDetail() {
                     </p>
 
                     {/* Price Row */}
-                    <div className="flex items-end gap-3">
-                        <span className="text-4xl font-black text-gray-900">₹{product.basePrice}</span>
-                        <span className="text-xl text-gray-400 line-through mb-1">₹{originalPrice}</span>
-                        <span className="text-sm font-bold text-green-600 bg-green-50 px-2 py-1 rounded-md mb-1 border border-green-100">{discountPct}% OFF</span>
+                    <div className="flex items-baseline gap-2.5 flex-wrap">
+                        <span className="text-3xl sm:text-4xl font-black text-gray-900">₹{product.basePrice}</span>
+                        <span className="text-lg sm:text-xl text-gray-400 line-through">₹{originalPrice}</span>
+                        <span className="text-xs sm:text-sm font-bold text-green-600 bg-green-50 px-2 py-1 rounded-md border border-green-100">{discountPct}% OFF</span>
                     </div>
 
                     {/* 2. Stock Badge */}
@@ -226,8 +254,8 @@ function ProductDetail() {
                                 <button
                                     key={size}
                                     onClick={() => setSelectedSize(size)}
-                                    className={`w-13 h-13 px-4 py-3 rounded-xl text-sm font-bold transition-all duration-200 ${selectedSize === size
-                                        ? "bg-black text-white shadow-lg scale-105 border-transparent"
+                                    className={`w-10 h-10 sm:w-11 sm:h-11 flex items-center justify-center rounded-xl text-xs sm:text-sm font-extrabold transition-all duration-200 ${selectedSize === size
+                                        ? "bg-black text-white shadow-md scale-105 border-transparent"
                                         : "bg-white border-2 border-gray-200 text-gray-600 hover:border-black hover:text-black"
                                     }`}
                                 >
@@ -240,7 +268,7 @@ function ProductDetail() {
                             👕 <span className="font-bold text-gray-700">{selectedSize}:</span> {SIZE_GUIDE[selectedSize]}
                         </p>
                     </div>
-
+ 
                     {/* 3. Quantity Selector */}
                     <div>
                         <p className="text-xs font-extrabold text-gray-900 uppercase tracking-widest mb-3">Quantity</p>
@@ -261,42 +289,42 @@ function ProductDetail() {
                             <span className="text-xs text-gray-400 font-medium ml-1">Max 10 per order</span>
                         </div>
                     </div>
-
+ 
                     {/* Actions */}
                     <div className="flex flex-col gap-3">
-                        <div className="flex gap-3">
+                        <div className="flex flex-col sm:flex-row gap-3">
                             {isInCart ? (
                                 <button
                                     onClick={() => navigate("/cart")}
-                                    className="flex-1 bg-black text-white py-4 rounded-xl font-extrabold text-sm tracking-widest uppercase hover:bg-zinc-900 transition-colors flex items-center justify-center gap-2 cursor-pointer shadow-lg"
+                                    className="flex-1 bg-black text-white py-2.5 sm:py-3 rounded-lg font-bold text-xs sm:text-sm tracking-wider uppercase hover:bg-zinc-900 transition-colors flex items-center justify-center gap-2 cursor-pointer shadow-lg"
                                 >
-                                    <svg className="w-5 h-5 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
+                                    <svg className="w-4 h-4 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
                                     Go to Cart
                                 </button>
                             ) : (
                                 <button
                                     onClick={handleAddToCart}
-                                    className="flex-1 bg-white border-2 border-black text-black py-4 rounded-xl font-extrabold text-sm tracking-widest uppercase hover:bg-black hover:text-white transition-colors flex items-center justify-center gap-2 cursor-pointer"
+                                    className="flex-1 bg-white border-2 border-black text-black py-2.5 sm:py-3 rounded-lg font-bold text-xs sm:text-sm tracking-wider uppercase hover:bg-black hover:text-white transition-colors flex items-center justify-center gap-2 cursor-pointer"
                                 >
-                                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"></path></svg>
+                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"></path></svg>
                                     Add to Cart
                                 </button>
                             )}
                             <button
                                 onClick={handleBuyNow}
-                                className="flex-1 bg-red-700 text-white py-4 rounded-xl font-extrabold text-sm tracking-widest uppercase hover:bg-red-800 transition-colors shadow-xl shadow-red-700/20 flex items-center justify-center gap-2 cursor-pointer"
+                                className="flex-1 bg-red-700 text-white py-2.5 sm:py-3 rounded-lg font-bold text-xs sm:text-sm tracking-wider uppercase hover:bg-red-800 transition-colors shadow-xl shadow-red-700/20 flex items-center justify-center gap-2 cursor-pointer"
                             >
-                                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
                                 Buy it Now
                             </button>
                         </div>
-
+ 
                         {/* 1. Customize CTA */}
                         <Link
                             to={`/customize?productId=${product.id}`}
-                            className="w-full bg-gradient-to-r from-zinc-900 to-zinc-700 text-white py-4 rounded-xl font-extrabold text-sm tracking-widest uppercase flex items-center justify-center gap-2 hover:from-zinc-800 hover:to-zinc-600 transition-all shadow-lg group"
+                            className="w-full bg-gradient-to-r from-zinc-900 to-zinc-700 text-white py-2.5 sm:py-3 rounded-lg font-bold text-xs sm:text-sm tracking-wider uppercase flex items-center justify-center gap-2 hover:from-zinc-800 hover:to-zinc-600 transition-all shadow-lg group text-center"
                         >
-                            <svg className="w-5 h-5 text-yellow-400 group-hover:rotate-12 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
+                            <svg className="w-4 h-4 text-yellow-400 group-hover:rotate-12 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
                                 <path strokeLinecap="round" strokeLinejoin="round" d="M15.232 5.232l3.536 3.536M9 13l6.586-6.586a2 2 0 012.828 2.828L11.828 15.828a4 4 0 01-2.828 1.172H7v-2a4 4 0 011.172-2.828z" />
                             </svg>
                             🎨 Customize &amp; Upload Your Design

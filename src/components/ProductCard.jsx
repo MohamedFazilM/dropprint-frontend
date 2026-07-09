@@ -40,7 +40,7 @@ function ProductCard({ product }) {
 
     return (
         <div
-            className="group flex flex-col bg-white rounded-xl overflow-hidden border border-gray-100 hover:border-orange-200 shadow-sm hover:shadow-[0_8px_32px_rgba(0,0,0,0.12)] transition-all duration-250 relative"
+            className="group flex flex-col bg-white rounded-lg overflow-hidden border border-gray-100 hover:border-orange-200 shadow-sm hover:shadow-[0_8px_32px_rgba(0,0,0,0.12)] transition-all duration-250 relative"
             style={{ fontFamily: "'Inter', 'Outfit', sans-serif" }}
             onMouseEnter={() => setIsHovered(true)}
             onMouseLeave={() => setIsHovered(false)}
@@ -90,12 +90,14 @@ function ProductCard({ product }) {
                     alt={product.name}
                     className={`absolute inset-0 w-full h-full object-contain p-4 transition-all duration-500 ease-in-out ${isHovered ? "opacity-0 scale-[1.06]" : "opacity-100 scale-100"}`}
                     onError={(e) => { e.target.src = "https://placehold.co/400x400/f5f5f5/aaaaaa?text=No+Image"; }}
+                    loading="lazy"
                 />
                 <img
                     src={backImg}
                     alt={`${product.name} back`}
                     className={`absolute inset-0 w-full h-full object-contain p-4 transition-all duration-500 ease-in-out ${isHovered ? "opacity-100 scale-[1.06]" : "opacity-0 scale-100"}`}
                     onError={(e) => { e.target.src = frontImg; }}
+                    loading="lazy"
                 />
 
 
@@ -110,12 +112,12 @@ function ProductCard({ product }) {
                 </p>
 
                 {/* Rating Row */}
-                <div className="flex items-center gap-2">
-                    <div className="flex items-center gap-1.5 bg-green-50 border border-green-100 px-1.5 py-0.5 rounded-md">
+                <div className="flex flex-wrap items-center gap-1.5">
+                    <div className="flex items-center gap-1 bg-green-50 border border-green-100 px-1.5 py-0.5 rounded-md">
                         <span className="text-[10px] font-bold text-green-700">{rating}</span>
                         <StarRating rating={rating} />
                     </div>
-                    <span className="text-[10px] text-gray-400 font-medium">({ratingCount} ratings)</span>
+                    <span className="text-[9px] text-gray-400 font-medium">({ratingCount})</span>
                 </div>
 
                 {/* Price Row */}

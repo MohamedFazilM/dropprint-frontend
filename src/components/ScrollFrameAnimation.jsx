@@ -20,7 +20,7 @@ function ScrollFrameAnimation() {
   const targetProgressRef = useRef(0);
   const currentProgressRef = useRef(0);
 
-  // Preload all images
+  // Preload all images progressively to prevent network congestion
   useEffect(() => {
     let active = true;
     const images = [];
@@ -29,9 +29,16 @@ function ScrollFrameAnimation() {
     const timer = setTimeout(() => {
       if (!active) return;
       let loaded = 0;
-      for (let i = 0; i < frameCount; i++) {
+      imagesRef.current = images;
+
+      const firstChunkSize = 10;
+
+      // Recursive function to load frames in pipelines
+      const loadFrame = (index) => {
+        if (!active || index >= frameCount) return;
+        
         const img = new Image();
-        img.src = getFramePath(i);
+        img.src = getFramePath(index);
         img.onload = () => {
           if (!active) return;
           loaded++;
@@ -39,17 +46,23 @@ function ScrollFrameAnimation() {
           if (loaded === frameCount) {
             setAllLoaded(true);
           }
+          // Load the next frame in this pipeline
+          loadFrame(index + firstChunkSize);
         };
-        images.push(img);
+        images[index] = img;
+      };
+
+      // Start the first 10 pipeline pipelines concurrently
+      for (let i = 0; i < firstChunkSize; i++) {
+        loadFrame(i);
       }
-      imagesRef.current = images;
     }, 800);
 
     return () => {
       active = false;
       clearTimeout(timer);
       images.forEach((img) => {
-        img.onload = null;
+        if (img) img.onload = null;
       });
     };
   }, []);
