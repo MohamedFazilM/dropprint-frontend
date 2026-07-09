@@ -305,17 +305,19 @@ function DesignStudio() {
                     const ctx = canvas.getContext("2d");
                     ctx.drawImage(img, 0, 0, width, height);
 
+                    // Convert transparent PNG to optimized WebP to shrink file sizes by up to 90%
                     canvas.toBlob((blob) => {
                         if (blob) {
-                            const compressedFile = new File([blob], file.name, {
-                                type: file.type || "image/png",
+                            const newFilename = file.name.replace(/\.[^/.]+$/, "") + ".webp";
+                            const compressedFile = new File([blob], newFilename, {
+                                type: "image/webp",
                                 lastModified: Date.now(),
                             });
                             resolve(compressedFile);
                         } else {
                             resolve(file);
                         }
-                    }, file.type || "image/png", 0.70);
+                    }, "image/webp", 0.60);
                 };
             };
         });

@@ -205,6 +205,11 @@ function Checkout() {
                     }
                 } catch (err) {
                     console.error("[Checkout] Failed to sync design in background:", err);
+                    if (isDirect) {
+                        updateDirectCheckoutDesign({ ...item.design, isUploading: false, error: true });
+                    } else {
+                        updateDesign(item.product.id, item.size, item.design.id, { ...item.design, isUploading: false, error: true });
+                    }
                 } finally {
                     syncInProgress.current.delete(designId);
                 }
