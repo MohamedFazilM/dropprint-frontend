@@ -158,7 +158,7 @@ function AdminDashboard() {
     const offsetCompleted = pPlaced + pProgress;
 
     return (
-        <div style={{ fontFamily: "'Outfit', sans-serif" }} className="p-8 max-w-7xl mx-auto space-y-8">
+        <div style={{ fontFamily: "'Outfit', sans-serif" }} className="p-4 sm:p-8 max-w-7xl mx-auto space-y-8">
             <div>
                 <span style={{
                     display: "inline-block",
@@ -180,7 +180,7 @@ function AdminDashboard() {
             </div>
 
             {/* Key Stat Cards Grid */}
-            <div className="grid grid-cols-1 sm:grid-cols-4 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
                 {stats.map((stat, idx) => (
                     <div 
                         key={idx} 
@@ -202,7 +202,7 @@ function AdminDashboard() {
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
                 {/* primary Sales Area chart */}
                 <div className="lg:col-span-8 bg-white border border-zinc-200/80 rounded-2xl p-6 shadow-[0_8px_30px_rgba(0,0,0,0.015)] flex flex-col justify-between space-y-6">
-                    <div className="flex justify-between items-center">
+                    <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                         <div>
                             <span className="text-[10px] text-zinc-450 font-bold uppercase tracking-wider block">Fulfillment Performance</span>
                             <h3 className="text-lg font-extrabold text-zinc-950">Fulfillment Trends</h3>

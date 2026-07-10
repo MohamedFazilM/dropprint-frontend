@@ -594,6 +594,7 @@ function Navbar() {
                                         setProfileDropdownOpen(false);
                                         localStorage.removeItem("customerUser");
                                         localStorage.removeItem("supabaseAccessToken");
+                                        localStorage.removeItem("isAdmin");
                                         window.dispatchEvent(new Event("customerLoginUpdate"));
                                     }}
                                     style={{

@@ -38,7 +38,7 @@ function LedgerHistoryModal({ entityId, onClose }) {
                     100% { transform: scale(1); opacity: 1; }
                 }
             `}</style>
-            <div className="bg-white rounded-[24px] p-8 max-w-lg w-full max-h-[80vh] overflow-y-auto shadow-[0_20px_50px_rgba(0,0,0,0.15)] border border-zinc-100 relative flex flex-col animate-[modalScaleUp_0.4s_cubic-bezier(0.16,1,0.3,1)]">
+            <div className="bg-white rounded-xl p-6 sm:p-8 max-w-lg w-full max-h-[80vh] overflow-y-auto shadow-[0_20px_50px_rgba(0,0,0,0.15)] border border-zinc-100 relative flex flex-col animate-[modalScaleUp_0.4s_cubic-bezier(0.16,1,0.3,1)]">
                 
                 {/* Accent line */}
                 <div className="absolute top-0 inset-x-0 h-1 bg-gradient-to-r from-red-600 to-zinc-900" />

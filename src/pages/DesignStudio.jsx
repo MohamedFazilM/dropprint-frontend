@@ -431,6 +431,14 @@ function DesignStudio() {
             const placement = (frontText && backText) ? `Front: ${frontText}, Back: ${backText}` : (frontText || backText || "Center");
             formData.append("position", placement);
 
+            const primaryProps = (frontFile && frontShapeProps) ? frontShapeProps : ((backFile && backShapeProps) ? backShapeProps : null);
+            if (primaryProps) {
+                formData.append("positionX", primaryProps.x ?? 130);
+                formData.append("positionY", primaryProps.y ?? 160);
+                formData.append("scale", primaryProps.scaleX ?? 1);
+                formData.append("rotation", primaryProps.rotation ?? 0);
+            }
+
             if (frontFile) {
                 let uploadFile = frontFile;
                 if (frontFile.size > 200 * 1024) {

@@ -3,15 +3,16 @@ import { Link } from "react-router-dom";
 
 function Pricing() {
   const baseApparel = [
-    { id: "std", name: "Classic Oversized Tee", desc: "180 GSM, 100% combed cotton. Everyday comfort.", price: 499, tag: "Best Seller" },
-    { id: "prem", name: "Heavyweight Tee (Premium)", desc: "240 GSM French Terry. Premium drop-shoulder fit.", price: 699, tag: "Premium Fit" },
+    { id: "1", name: "Base Tee", desc: "Everyday comfort t-shirt template.", price: 249, tag: "Essential" },
+    { id: "2", name: "Heavyweight Oversized Tee", desc: "Premium drop-shoulder fit heavyweight cotton.", price: 349, tag: "Oversized Fit" },
+    { id: "3", name: "Luxury Streetwear Tee", desc: "Ultra premium fabric and fit.", price: 449, tag: "Premium" },
   ];
 
   const printStyles = [
     { id: "text", name: "Text Only", area: "Front/Back", desc: "Simple slogans, names, or numbers.", price: 99 },
-    { id: "single", name: "Single Color Print", area: "A4 Size", desc: "Line art, minimalist shapes, or solid logos.", price: 149 },
-    { id: "dtf", name: "Full Color (DTF)", area: "A4 Size", desc: "High-res photos, colorful graphics, or gradients.", price: 249 },
-    { id: "full", name: "Full Front & Back Print", area: "Full Coverage", desc: "Complete coverage print on both sides.", price: 399 },
+    { id: "single", name: "Single Color Print", area: "A4 Size", desc: "Line art, minimalist shapes, or solid logos.", price: 99 },
+    { id: "dtf", name: "Full Color (DTF)", area: "A4 Size", desc: "High-res photos, colorful graphics, or gradients.", price: 199 },
+    { id: "full", name: "Full Front & Back Print", area: "Full Coverage", desc: "Complete coverage print on both sides.", price: 299 },
   ];
 
   const faqs = [

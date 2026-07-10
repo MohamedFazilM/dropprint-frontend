@@ -1,80 +1,77 @@
-# Plan: Merge Custom Graphics realistically onto T-Shirt and Support Separate Front & Back Designs
+# Implementation Plan — Responsive Admin Interface
 
-This plan outlines the changes to resolve:
-1. **Realistic Graphic Merging**: Project uploaded designs directly onto the 3D T-shirt body mesh folds, shadows, and creases using Drei's `<Decal>` and Three.js portals, replacing the flat floating 2D plane.
-2. **Dual-Side Customization**: Allow users to upload and customize a front design and/or a back design independently.
+This plan outlines the changes required to make all admin pages, layouts, and navigation responsive.
 
----
+## User Review Required
+
+> [!IMPORTANT]
+> The admin navigation bar will use pure Tailwind classes (`hidden md:flex` / `flex md:hidden`) and a React toggle state to show/hide a vertical drop-down list on screens under `768px` (medium viewport).
+
+## Open Questions
+- None. The changes will build on the existing Tailwind v4 styles.
 
 ## Proposed Changes
 
-### [Component: TShirtModel]
+---
 
-#### [MODIFY] [TShirtModel.jsx](file:///c:/Users/ADMIN/Documents/dropprint-frontend/src/components/TShirtModel.jsx)
-- Import `createPortal` from `@react-three/fiber` to dynamically nest decals into the GLTF model's body mesh.
-- Load separate `frontDecalTexture` and `backDecalTexture` depending on active previews.
-- Track root group `rootRef` to measure unrotated world matrices (ignoring OrbitControls' active rotation `rotationY` temporarily during coordinate updates).
-- Calculate exact local position, scale, and rotation of the projection box on the t-shirt body mesh.
-- Render `<Decal>` components nested with `<meshStandardMaterial>` matching the t-shirt fabric properties (`roughness: 0.7`, `metalness: 0.1`) to ensure realistic integration.
+### [Component: Admin Navigation]
+
+#### [MODIFY] [AdminNavbar.jsx](file:///c:/Users/ADMIN/Documents/dropprint-frontend/src/components/AdminNavbar.jsx)
+- Reduce side padding from `px-8` to `px-4 sm:px-8`.
+- Keep the desktop navigation links hidden on screens smaller than md (`hidden md:flex`).
+- Implement a mobile menu button (hamburger icon) on screens smaller than md (`flex md:hidden`).
+- Render a drop-down menu overlay containing navigation links when the mobile menu is active, ensuring proper overlay layers (`z-50`).
 
 ---
 
-### [Component: TShirtViewer]
+### [Pages: Admin Dashboard]
 
-#### [MODIFY] [TShirtViewer.jsx](file:///c:/Users/ADMIN/Documents/dropprint-frontend/src/components/TShirtViewer.jsx)
-- Update parameter mapping to accept separate `frontPreviewUrl`, `frontDecalProps`, `backPreviewUrl`, and `backDecalProps` and feed them down to `TShirtModel`.
-
----
-
-### [Pages: DesignStudio]
-
-#### [MODIFY] [DesignStudio.jsx](file:///c:/Users/ADMIN/Documents/dropprint-frontend/src/pages/DesignStudio.jsx)
-- Split the design state into independent sets for Front and Back side assets:
-  - **Front**: `frontFile`, `frontPreviewUrl`, `frontShapeProps`
-  - **Back**: `backFile`, `backPreviewUrl`, `backShapeProps`
-- Update the layout mode's Konva Stage so it targets and modifies the active print area's properties.
-- Set the Konva shape nodes to `opacity={0.01}`. This keeps them fully interactive and enables dragging/scaling handles while showing the high-quality 3D decal underneath.
-- Update checkout/cart mapping triggers to bundle both uploaded designs into the e-commerce design payload.
+#### [MODIFY] [AdminDashboard.jsx](file:///c:/Users/ADMIN/Documents/dropprint-frontend/src/pages/admin/AdminDashboard.jsx)
+- Reduce page container padding from `p-8` to `p-4 sm:p-8`.
+- Change stats cards grid layout from `grid-cols-1 sm:grid-cols-4` to `grid-cols-1 sm:grid-cols-2 lg:grid-cols-4` to prevent cramped layouts on tablet viewports.
+- Modify the Fulfillment Trends chart header to stack on mobile: change `flex justify-between items-center` to `flex flex-col sm:flex-row gap-4 justify-between items-start sm:items-center`.
 
 ---
 
-### [Store: cartStore]
-
-#### [MODIFY] [cartStore.js](file:///c:/Users/ADMIN/Documents/dropprint-frontend/src/store/cartStore.js)
-- Adapt cart item unique key checks so they check both front and back design IDs, preventing duplicate item collisions.
-
----
-
-### [Pages: Cart]
-
-#### [MODIFY] [Cart.jsx](file:///c:/Users/ADMIN/Documents/dropprint-frontend/src/pages/Cart.jsx)
-- Update product thumbnails to overlay the corresponding front or back custom graphics.
-- Render dynamic tags indicating print placements (e.g., "Print Area: Front & Back" if both are customized).
-
----
-
-### [Pages: Checkout]
-
-#### [MODIFY] [Checkout.jsx](file:///c:/Users/ADMIN/Documents/dropprint-frontend/src/pages/Checkout.jsx)
-- Update background sync uploading loop to handle uploading both front and back designs if they are pending.
-- Send both `designId` (for front) and `designBackId` (for back) to the order API.
-
----
-
-### [Pages: AdminOrders]
+### [Pages: Admin Orders]
 
 #### [MODIFY] [AdminOrders.jsx](file:///c:/Users/ADMIN/Documents/dropprint-frontend/src/pages/admin/AdminOrders.jsx)
-- Update the order details component to display thumbnails for both front and back custom graphic aspects.
-- Display links to download both front and back design art files.
+- Reduce page container padding from `p-8` to `p-4 sm:p-8`.
+- Adjust details block within each order card (`grid-cols-1 md:grid-cols-12`) so contents flow nicely.
+- Order items display: ensure composite t-shirt thumbnails wrap clean and text fits on smaller viewport widths.
+
+---
+
+### [Pages: Admin Products]
+
+#### [MODIFY] [AdminProducts.jsx](file:///c:/Users/ADMIN/Documents/dropprint-frontend/src/pages/admin/AdminProducts.jsx)
+- Reduce page container padding from `p-8` to `p-4 sm:p-8`.
+- Update the product items catalog table: add `whitespace-nowrap` to headers (`<th>`) and body cells (`<td>`) to ensure text details don't squish into tiny vertical lines, letting `overflow-x-auto` handle scrolling gracefully on mobile screens.
+
+---
+
+### [Pages: Admin Ledger]
+
+#### [MODIFY] [AdminLedger.jsx](file:///c:/Users/ADMIN/Documents/dropprint-frontend/src/pages/admin/AdminLedger.jsx)
+- Reduce page container padding from `p-8` to `p-4 sm:p-8`.
+- Update the transaction logs table: add `whitespace-nowrap` to table cells and headers so horizontal scroll works smoothly without compressing textual details.
+
+---
+
+### [Component: Ledger History Modal]
+
+#### [MODIFY] [LedgerHistoryModal.jsx](file:///c:/Users/ADMIN/Documents/dropprint-frontend/src/components/LedgerHistoryModal.jsx)
+- Adjust dialog container padding from `p-8` to `p-6 sm:p-8` to save precious viewport space on mobile devices.
 
 ---
 
 ## Verification Plan
 
 ### Automated Tests
-- Build verification using Vite to ensure compilation is clean and free of errors.
+- Propose `npm run build` command to confirm Vite builds successfully without any TS/JS build or lint syntax errors.
 
 ### Manual Verification
-- Upload front design, adjust its size/rotation, and verify that it bends and fits within the t-shirt folds.
-- Upload back design, select back aspect, and verify it updates the back side graphic separately.
-- Click "Add to Cart" / "Buy Now" and verify that both designs appear correctly in the cart, checkout, and admin dashboards.
+- Resize browser width down to mobile (e.g. 375px) and tablet (e.g. 768px) profiles.
+- Verify that the navigation dropdown functions correctly and toggles links.
+- Confirm stats cards grid adapts to 1, 2, or 4 columns depending on screen size.
+- Verify tables are scrollable horizontally with no distorted text layouts.

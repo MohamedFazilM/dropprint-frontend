@@ -34,7 +34,7 @@ function TrackOrder() {
         setLoading(true);
 
         let queryId = orderId.trim().toLowerCase();
-        
+
         // Correct prefix from "ord_" to "odr_" if typed
         if (queryId.startsWith("ord_")) {
             queryId = queryId.replace("ord_", "odr_");
@@ -56,8 +56,8 @@ function TrackOrder() {
             queryId = `odr_${paddedNum}`;
         }
 
-        const paramsPayload = { 
-            orderId: queryId, 
+        const paramsPayload = {
+            orderId: queryId,
             id: queryId, // Send id as well for fallback backend route queries
             phone: phone.trim(),
             _t: Date.now() // Cache-buster to bypass browser request caching
@@ -93,7 +93,7 @@ function TrackOrder() {
                 </div>
 
                 {/* Form Card */}
-                <div className="bg-white rounded-3xl border border-zinc-100 p-6 md:p-8 shadow-[0_4px_24px_rgba(0,0,0,0.01)] mb-8">
+                <div className="bg-white rounded-xl border border-zinc-100 p-6 md:p-8 shadow-[0_4px_24px_rgba(0,0,0,0.01)] mb-8">
                     <form onSubmit={handleSearch} className="grid grid-cols-1 sm:grid-cols-12 gap-4 items-end">
                         <div className="sm:col-span-5 flex flex-col gap-1.5">
                             <label className="text-xs font-bold text-zinc-400 uppercase tracking-widest">Order ID</label>
@@ -102,7 +102,7 @@ function TrackOrder() {
                                 placeholder="e.g. 13"
                                 value={orderId}
                                 onChange={(e) => setOrderId(e.target.value)}
-                                className="border border-zinc-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-zinc-900 transition-colors font-bold"
+                                className="border border-zinc-200 rounded-lg px-4 py-3 text-sm focus:outline-none focus:border-zinc-900 transition-colors font-bold"
                                 required
                             />
                         </div>
@@ -113,7 +113,7 @@ function TrackOrder() {
                                 placeholder="Enter phone number"
                                 value={phone}
                                 onChange={(e) => setPhone(e.target.value)}
-                                className="border border-zinc-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-zinc-900 transition-colors font-bold"
+                                className="border border-zinc-200 rounded-lg px-4 py-3 text-sm focus:outline-none focus:border-zinc-900 transition-colors font-bold"
                                 required
                             />
                         </div>
@@ -121,14 +121,14 @@ function TrackOrder() {
                             <button
                                 type="submit"
                                 disabled={loading}
-                                className="w-full bg-[#cc0000] text-white hover:bg-[#b30000] px-4 py-3.5 rounded-xl text-xs font-bold uppercase tracking-wider transition-colors disabled:opacity-50 cursor-pointer shadow-md shadow-red-700/10 active:scale-[0.98]"
+                                className="w-full bg-[#cc0000] text-white hover:bg-[#b30000] px-4 py-3.5 rounded-lg text-xs font-bold uppercase tracking-wider transition-colors disabled:opacity-50 cursor-pointer shadow-md shadow-red-700/10 active:scale-[0.98]"
                             >
                                 {loading ? "Searching..." : "Track"}
                             </button>
                         </div>
                     </form>
                     {error && (
-                        <div className="mt-4 flex flex-col gap-2 text-xs font-semibold text-red-600 bg-red-50 border border-red-100 p-3.5 rounded-xl animate-fade-in">
+                        <div className="mt-4 flex flex-col gap-2 text-xs font-semibold text-red-600 bg-red-50 border border-red-100 p-3.5 rounded-lg animate-fade-in">
                             <div className="flex items-center gap-2">
                                 <span>⚠</span>
                                 <span>{error}</span>
@@ -145,8 +145,8 @@ function TrackOrder() {
 
                 {/* Tracking Details & Map */}
                 {order && (
-                    <div className="bg-white rounded-3xl border border-zinc-100 p-6 md:p-8 shadow-[0_4px_24px_rgba(0,0,0,0.01)] space-y-8">
-                        
+                    <div className="bg-white rounded-xl border border-zinc-100 p-6 md:p-8 shadow-[0_4px_24px_rgba(0,0,0,0.01)] space-y-8">
+
                         {/* Order Header Summary */}
                         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 pb-6 border-b border-zinc-100">
                             <div>
@@ -168,11 +168,11 @@ function TrackOrder() {
                         {/* Interactive Vector Shipping Route Map (Flipkart/Meesho style) */}
                         <div>
                             <h3 className="text-xs font-bold text-zinc-400 uppercase tracking-widest mb-4">Order Status Map</h3>
-                            
+
                             <div className="w-full h-44 bg-sky-50/50 rounded-2xl border border-sky-100 shadow-inner overflow-hidden relative flex flex-col justify-end p-4">
                                 {/* Grid Background Lines */}
                                 <div className="absolute inset-0 opacity-15 pointer-events-none" style={{ backgroundImage: "radial-gradient(#0369a1 1px, transparent 1px)", backgroundSize: "16px 16px" }} />
-                                
+
                                 {/* Map Land/Vector Graphic Details */}
                                 <svg className="absolute inset-0 w-full h-full text-sky-100/40 opacity-70" fill="currentColor" viewBox="0 0 800 176" preserveAspectRatio="none">
                                     <path d="M 0 100 Q 150 50 300 120 T 600 80 T 800 100 L 800 176 L 0 176 Z" />
@@ -182,16 +182,16 @@ function TrackOrder() {
 
                                 {/* Live Dotted Routing Path Line */}
                                 <svg className="absolute inset-x-0 top-1/2 -translate-y-1/2 h-4 w-full" fill="none" stroke="currentColor" viewBox="0 0 100 10" preserveAspectRatio="none">
-                                    <path 
-                                        d="M 5 5 H 95" 
-                                        strokeDasharray="2 1.5" 
-                                        strokeWidth="0.8" 
+                                    <path
+                                        d="M 5 5 H 95"
+                                        strokeDasharray="2 1.5"
+                                        strokeWidth="0.8"
                                         className="stroke-sky-300"
                                     />
                                     {/* Active filled path */}
-                                    <path 
-                                        d={`M 5 5 H ${activeTruckLeft}`} 
-                                        strokeWidth="0.8" 
+                                    <path
+                                        d={`M 5 5 H ${activeTruckLeft}`}
+                                        strokeWidth="0.8"
                                         className="stroke-[#cc0000] transition-all duration-1000 ease-in-out"
                                     />
                                 </svg>
@@ -221,7 +221,7 @@ function TrackOrder() {
                                 </div>
 
                                 {/* Animating Transit Truck Icon */}
-                                <div 
+                                <div
                                     className="absolute top-[48%] -translate-y-1/2 -translate-x-1/2 transition-all duration-1000 ease-in-out flex flex-col items-center z-10"
                                     style={{ left: `${activeTruckLeft}%` }}
                                 >
@@ -251,23 +251,22 @@ function TrackOrder() {
                         {/* Vertical Timeline Stepper (Flipkart/Meesho style) */}
                         <div>
                             <h3 className="text-xs font-bold text-zinc-400 uppercase tracking-widest mb-6">Timeline</h3>
-                            
+
                             <div className="relative pl-6 border-l-2 border-zinc-100 ml-4 space-y-8">
                                 {STATUS_STEPS.map((step, index) => {
                                     const isCompleted = index <= currentStepIndex;
                                     const isActive = index === currentStepIndex;
-                                    
+
                                     return (
                                         <div key={step} className="relative">
                                             {/* Stepper Bullet Indicator */}
-                                            <div 
-                                                className={`absolute -left-[31px] top-0.5 w-4 h-4 rounded-full border-2 flex items-center justify-center transition-all duration-500 z-10 ${
-                                                    isActive 
-                                                        ? "bg-[#cc0000] border-[#cc0000] ring-4 ring-red-500/20 scale-110" 
-                                                        : isCompleted 
-                                                        ? "bg-zinc-950 border-zinc-950" 
-                                                        : "bg-white border-zinc-200"
-                                                }`}
+                                            <div
+                                                className={`absolute -left-[31px] top-0.5 w-4 h-4 rounded-full border-2 flex items-center justify-center transition-all duration-500 z-10 ${isActive
+                                                        ? "bg-[#cc0000] border-[#cc0000] ring-4 ring-red-500/20 scale-110"
+                                                        : isCompleted
+                                                            ? "bg-zinc-950 border-zinc-950"
+                                                            : "bg-white border-zinc-200"
+                                                    }`}
                                             >
                                                 {isCompleted && !isActive && (
                                                     <svg className="w-2.5 h-2.5 text-white stroke-[3.5]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" /></svg>
@@ -287,7 +286,7 @@ function TrackOrder() {
                                                         {STATUS_DESCRIPTIONS[step]}
                                                     </p>
                                                 </div>
-                                                
+
                                                 {/* Active Step Indicator Badge */}
                                                 {isActive && (
                                                     <div className="text-[9px] text-[#cc0000] bg-red-50 border border-red-100 font-bold uppercase tracking-wider px-2 py-0.5 rounded-md flex-shrink-0">
@@ -306,7 +305,7 @@ function TrackOrder() {
                             <h3 className="text-xs font-bold text-zinc-400 uppercase tracking-widest mb-4">Items in this Order</h3>
                             <div className="space-y-3">
                                 {order.items?.map((item) => (
-                                    <div key={item.id} className="flex justify-between items-center bg-gray-50 p-4 rounded-2xl border border-zinc-100 text-sm">
+                                    <div key={item.id} className="flex justify-between items-center bg-gray-50 p-4 rounded-lg border border-zinc-100 text-sm">
                                         <div className="flex flex-col">
                                             <span className="font-extrabold text-zinc-900">{item.product?.name || "Oversized Tee"}</span>
                                             <span className="text-xs font-bold text-zinc-400 uppercase tracking-wider mt-0.5">Size: {item.size} • Qty: {item.qty}</span>

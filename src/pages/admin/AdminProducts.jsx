@@ -12,6 +12,8 @@ function AdminProducts() {
     const [editingId, setEditingId] = useState(null);
     const [historyEntityId, setHistoryEntityId] = useState(null);
     const [activePreviewImage, setActivePreviewImage] = useState(null);
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [successPopup, setSuccessPopup] = useState(null);
     const formRef = useRef(null);
 
     // File states
@@ -101,9 +103,11 @@ function AdminProducts() {
                 await axiosClient.post("/admin/products", payload);
             }
 
+            const successMsg = editingId ? "Product details updated successfully!" : "New product added to catalog successfully!";
             resetForm();
+            setIsModalOpen(false);
             fetchProducts();
-            window.location.reload();
+            setSuccessPopup(successMsg);
         } catch (err) {
             console.error(err);
             alert("Failed to save product");
@@ -128,9 +132,23 @@ function AdminProducts() {
         setFrontFile(null);
         setBackFile(null);
         setEditingId(product.id);
-        
-        // Smooth scroll to edit form area on click
-        formRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+        setIsModalOpen(true);
+    };
+
+    const handleDelete = async () => {
+        if (!editingId) return;
+        if (!window.confirm(`Are you sure you want to delete ${form.name || "this product"}?`)) return;
+
+        try {
+            const res = await axiosClient.delete(`/admin/products/${editingId}`);
+            resetForm();
+            setIsModalOpen(false);
+            fetchProducts();
+            setSuccessPopup(res.data.message || "Product deleted successfully!");
+        } catch (err) {
+            console.error(err);
+            alert("Failed to delete product");
+        }
     };
 
     if (loading) {
@@ -142,165 +160,192 @@ function AdminProducts() {
     }
 
     return (
-        <div style={{ fontFamily: "'Outfit', sans-serif" }} className="p-8 max-w-7xl mx-auto space-y-8">
-            <div className="flex justify-between items-center">
+        <div style={{ fontFamily: "'Outfit', sans-serif" }} className="p-4 sm:p-8 max-w-7xl mx-auto space-y-8">
+            <div className="flex justify-between items-center pb-4 border-b border-zinc-150/40">
                 <div>
-                    <span style={{
-                        display: "inline-block",
-                        fontSize: "11px",
-                        fontWeight: 700,
-                        letterSpacing: "4px",
-                        textTransform: "uppercase",
-                        color: "#cc0000",
-                        marginBottom: "8px",
-                    }}>CATALOG</span>
-                    <h1 style={{
-                        fontFamily: "'Outfit', sans-serif",
-                        fontSize: "clamp(24px, 3.5vw, 36px)",
-                        fontWeight: 800,
-                        color: "#111",
-                        letterSpacing: "-1.5px",
-                        margin: "0",
-                    }}>Products</h1>
+                    <span className="text-[10px] font-black text-[#cc0000] uppercase tracking-widest block mb-0.5">Catalog</span>
+                    <h1 className="text-2xl md:text-3xl font-black text-zinc-900 tracking-tight">Products</h1>
                 </div>
+                <button
+                    onClick={() => { resetForm(); setIsModalOpen(true); }}
+                    className="bg-zinc-950 hover:bg-[#cc0000] text-white px-4 py-2.5 rounded-lg text-xs font-bold uppercase tracking-wider transition-all duration-200 cursor-pointer shadow-md flex items-center gap-2 active:scale-95"
+                >
+                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
+                    </svg>
+                    Add Product
+                </button>
             </div>
 
-            {/* Product Form */}
-            <form 
-                ref={formRef}
-                onSubmit={handleSubmit} 
-                style={{ background: "#fafafa" }}
-                className="rounded-3xl border border-zinc-200/60 p-6 md:p-8 space-y-6"
-            >
-                <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest block">
-                    {editingId ? "Edit Product Details" : "Create New Product"}
-                </span>
-
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <div className="space-y-1">
-                        <label className="text-[9px] font-bold text-zinc-450 uppercase tracking-wider block">Product Name</label>
-                        <input name="name" placeholder="e.g. Classic Oversized" value={form.name} onChange={handleChange} className="w-full border border-zinc-200 rounded-xl px-4 py-2.5 text-xs font-bold focus:outline-none focus:border-zinc-950 bg-white" required />
-                    </div>
-                    <div className="space-y-1">
-                        <label className="text-[9px] font-bold text-zinc-450 uppercase tracking-wider block">Base Color</label>
-                        <input name="color" placeholder="e.g. Off-White" value={form.color} onChange={handleChange} className="w-full border border-zinc-200 rounded-xl px-4 py-2.5 text-xs font-bold focus:outline-none focus:border-zinc-950 bg-white" required />
-                    </div>
-                    <div className="space-y-1">
-                        <label className="text-[9px] font-bold text-zinc-450 uppercase tracking-wider block">Base Price (INR)</label>
-                        <input name="basePrice" type="number" placeholder="e.g. 499" value={form.basePrice} onChange={handleChange} className="w-full border border-zinc-200 rounded-xl px-4 py-2.5 text-xs font-bold focus:outline-none focus:border-zinc-950 bg-white" required />
-                    </div>
-                    <div className="space-y-1">
-                        <label className="text-[9px] font-bold text-zinc-450 uppercase tracking-wider block">Fabric Details</label>
-                        <input name="fabricInfo" placeholder="e.g. 100% Combed Cotton" value={form.fabricInfo} onChange={handleChange} className="w-full border border-zinc-200 rounded-xl px-4 py-2.5 text-xs font-bold focus:outline-none focus:border-zinc-950 bg-white" />
-                    </div>
-                    <div className="space-y-1">
-                        <label className="text-[9px] font-bold text-zinc-450 uppercase tracking-wider block">GSM Density</label>
-                        <input name="gsm" type="number" placeholder="e.g. 240" value={form.gsm} onChange={handleChange} className="w-full border border-zinc-200 rounded-xl px-4 py-2.5 text-xs font-bold focus:outline-none focus:border-zinc-950 bg-white" />
-                    </div>
-                    <div className="space-y-1">
-                        <label className="text-[9px] font-bold text-zinc-450 uppercase tracking-wider block">Catalog Status</label>
-                        <select name="status" value={form.status} onChange={handleChange} className="w-full border border-zinc-200 rounded-xl px-4 py-2.5 text-xs font-bold focus:outline-none focus:border-zinc-950 bg-white">
-                            <option value="active">Active</option>
-                            <option value="inactive">Inactive</option>
-                        </select>
-                    </div>
-                </div>
-
-                {/* Image Upload Section */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    {/* Front Image */}
-                    <div className="bg-white border border-zinc-200/40 rounded-2xl p-5 space-y-3 flex flex-col justify-between">
-                        <div>
-                            <span className="text-[10px] font-bold text-zinc-450 uppercase tracking-wider block mb-1">Front Layout Mockup</span>
-                            {frontPreview ? (
-                                <img
-                                    src={frontPreview}
-                                    alt="Front preview"
-                                    className="w-full h-44 object-contain rounded-xl mb-3 border border-zinc-100 bg-zinc-50"
-                                />
-                            ) : (
-                                <div className="w-full h-44 rounded-xl border-2 border-dashed border-zinc-200 flex flex-col items-center justify-center text-zinc-400 text-xs font-medium mb-3">
-                                    <span>No Preview Selected</span>
-                                </div>
-                            )}
-                        </div>
-                        <div className="space-y-2">
-                            <input
-                                type="file"
-                                accept="image/*"
-                                onChange={handleFrontFileChange}
-                                className="text-xs w-full file:mr-4 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-[10px] file:font-bold file:uppercase file:bg-zinc-100 file:text-zinc-700 hover:file:bg-zinc-200"
-                            />
-                            <input
-                                name="imageMain"
-                                placeholder="Or enter direct image URL"
-                                value={form.imageMain}
-                                onChange={handleChange}
-                                className="w-full border border-zinc-200 rounded-xl px-3 py-2 text-xs font-medium focus:outline-none focus:border-zinc-950"
-                            />
-                        </div>
-                    </div>
-
-                    {/* Back Image */}
-                    <div className="bg-white border border-zinc-200/40 rounded-2xl p-5 space-y-3 flex flex-col justify-between">
-                        <div>
-                            <span className="text-[10px] font-bold text-zinc-455 uppercase tracking-wider block mb-1">Back Layout Mockup</span>
-                            {backPreview ? (
-                                <img
-                                    src={backPreview}
-                                    alt="Back preview"
-                                    className="w-full h-44 object-contain rounded-xl mb-3 border border-zinc-100 bg-zinc-50"
-                                />
-                            ) : (
-                                <div className="w-full h-44 rounded-xl border-2 border-dashed border-zinc-200 flex flex-col items-center justify-center text-zinc-400 text-xs font-medium mb-3">
-                                    <span>No Preview Selected</span>
-                                </div>
-                            )}
-                        </div>
-                        <div className="space-y-2">
-                            <input
-                                type="file"
-                                accept="image/*"
-                                onChange={handleBackFileChange}
-                                className="text-xs w-full file:mr-4 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-[10px] file:font-bold file:uppercase file:bg-zinc-100 file:text-zinc-700 hover:file:bg-zinc-200"
-                            />
-                            <input
-                                name="imageBack"
-                                placeholder="Or enter direct image URL"
-                                value={form.imageBack}
-                                onChange={handleChange}
-                                className="w-full border border-zinc-200 rounded-xl px-3 py-2 text-xs font-medium focus:outline-none focus:border-zinc-950"
-                            />
-                        </div>
-                    </div>
-                </div>
-
-                <div className="flex gap-3">
-                    <button
-                        type="submit"
-                        disabled={uploading}
-                        className="bg-zinc-950 hover:bg-zinc-800 text-white px-6 py-3 rounded-xl text-xs font-bold uppercase tracking-wider transition-colors disabled:opacity-50 cursor-pointer shadow-sm"
+            {/* Product Form Modal */}
+            {isModalOpen && (
+                <div className="fixed inset-0 bg-zinc-950/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 overflow-y-auto">
+                    <style>{`
+                        @keyframes fadeIn {
+                            0% { opacity: 0; }
+                            100% { opacity: 1; }
+                        }
+                        @keyframes modalScaleUp {
+                            0% { transform: scale(0.95); opacity: 0; }
+                            100% { transform: scale(1); opacity: 1; }
+                        }
+                    `}</style>
+                    <div 
+                        className="bg-white border border-zinc-200 rounded-xl p-6 md:p-8 max-w-4xl w-full relative shadow-2xl space-y-6 max-h-[90vh] overflow-y-auto animate-[modalScaleUp_0.3s_cubic-bezier(0.16,1,0.3,1)]" 
+                        onClick={e => e.stopPropagation()}
                     >
-                        {uploading ? "Saving..." : editingId ? "Update Product" : "Add Product"}
-                    </button>
-                    {editingId && (
+                        {/* Close button */}
                         <button 
-                            type="button" 
-                            onClick={resetForm} 
-                            className="border border-zinc-200 bg-white hover:bg-zinc-50 text-zinc-650 px-6 py-3 rounded-xl text-xs font-bold uppercase tracking-wider transition-colors cursor-pointer"
+                            type="button"
+                            onClick={() => { resetForm(); setIsModalOpen(false); }}
+                            className="absolute top-6 right-6 w-8 h-8 rounded-full border border-zinc-150 bg-white hover:bg-zinc-50 flex items-center justify-center text-zinc-400 hover:text-zinc-955 transition-all cursor-pointer shadow-sm active:scale-95"
                         >
-                            Cancel
+                            ✕
                         </button>
-                    )}
+
+                        <h3 className="text-sm font-black text-zinc-900 uppercase tracking-widest pb-3 border-b border-zinc-100">
+                            {editingId ? "Edit Product Details" : "Create New Product"}
+                        </h3>
+
+                        <form onSubmit={handleSubmit} className="space-y-6">
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                <div className="space-y-1">
+                                    <label className="text-[9px] font-bold text-zinc-450 uppercase tracking-wider block">Product Name</label>
+                                    <input name="name" placeholder="e.g. Classic Oversized" value={form.name} onChange={handleChange} className="w-full border border-zinc-200 rounded-lg px-4 py-2.5 text-xs font-bold focus:outline-none focus:border-zinc-950 bg-white" required />
+                                </div>
+                                <div className="space-y-1">
+                                    <label className="text-[9px] font-bold text-zinc-455 uppercase tracking-wider block">Base Color</label>
+                                    <input name="color" placeholder="e.g. Off-White" value={form.color} onChange={handleChange} className="w-full border border-zinc-200 rounded-lg px-4 py-2.5 text-xs font-bold focus:outline-none focus:border-zinc-955 bg-white" required />
+                                </div>
+                                <div className="space-y-1">
+                                    <label className="text-[9px] font-bold text-zinc-455 uppercase tracking-wider block">Base Price (INR)</label>
+                                    <input name="basePrice" type="number" placeholder="e.g. 499" value={form.basePrice} onChange={handleChange} className="w-full border border-zinc-200 rounded-lg px-4 py-2.5 text-xs font-bold focus:outline-none focus:border-zinc-955 bg-white" required />
+                                </div>
+                                <div className="space-y-1">
+                                    <label className="text-[9px] font-bold text-zinc-455 uppercase tracking-wider block">Fabric Details</label>
+                                    <input name="fabricInfo" placeholder="e.g. 100% Combed Cotton" value={form.fabricInfo} onChange={handleChange} className="w-full border border-zinc-200 rounded-lg px-4 py-2.5 text-xs font-bold focus:outline-none focus:border-zinc-955 bg-white" />
+                                </div>
+                                <div className="space-y-1">
+                                    <label className="text-[9px] font-bold text-zinc-455 uppercase tracking-wider block">GSM Density</label>
+                                    <input name="gsm" type="number" placeholder="e.g. 240" value={form.gsm} onChange={handleChange} className="w-full border border-zinc-200 rounded-lg px-4 py-2.5 text-xs font-bold focus:outline-none focus:border-zinc-955 bg-white" />
+                                </div>
+                                <div className="space-y-1">
+                                    <label className="text-[9px] font-bold text-zinc-455 uppercase tracking-wider block">Catalog Status</label>
+                                    <select name="status" value={form.status} onChange={handleChange} className="w-full border border-zinc-200 rounded-lg px-4 py-2.5 text-xs font-bold focus:outline-none focus:border-zinc-955 bg-white cursor-pointer">
+                                        <option value="active">Active</option>
+                                        <option value="inactive">Inactive</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            {/* Image Upload Section */}
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                {/* Front Image */}
+                                <div className="bg-zinc-50/50 border border-zinc-200/50 rounded-lg p-5 space-y-3 flex flex-col justify-between">
+                                    <div>
+                                        <span className="text-[10px] font-bold text-zinc-455 uppercase tracking-wider block mb-1">Front Layout Mockup</span>
+                                        {frontPreview ? (
+                                            <img
+                                                src={frontPreview}
+                                                alt="Front preview"
+                                                className="w-full h-44 object-contain rounded-lg mb-3 border border-zinc-100 bg-white"
+                                            />
+                                        ) : (
+                                            <div className="w-full h-44 rounded-lg border-2 border-dashed border-zinc-200 bg-white flex flex-col items-center justify-center text-zinc-400 text-xs font-medium mb-3">
+                                                <span>No Preview Selected</span>
+                                            </div>
+                                        )}
+                                    </div>
+                                    <div className="space-y-2">
+                                        <input
+                                            type="file"
+                                            accept="image/*"
+                                            onChange={handleFrontFileChange}
+                                            className="text-xs w-full file:mr-4 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-[10px] file:font-bold file:uppercase file:bg-zinc-150 file:text-zinc-700 hover:file:bg-zinc-250 cursor-pointer"
+                                        />
+                                        <input
+                                            name="imageMain"
+                                            placeholder="Or enter direct image URL"
+                                            value={form.imageMain}
+                                            onChange={handleChange}
+                                            className="w-full border border-zinc-200 rounded-lg px-3 py-2.5 text-xs font-medium focus:outline-none focus:border-zinc-955 bg-white"
+                                        />
+                                    </div>
+                                </div>
+
+                                {/* Back Image */}
+                                <div className="bg-zinc-50/50 border border-zinc-200/50 rounded-lg p-5 space-y-3 flex flex-col justify-between">
+                                    <div>
+                                        <span className="text-[10px] font-bold text-zinc-455 uppercase tracking-wider block mb-1">Back Layout Mockup</span>
+                                        {backPreview ? (
+                                            <img
+                                                src={backPreview}
+                                                alt="Back preview"
+                                                className="w-full h-44 object-contain rounded-lg mb-3 border border-zinc-100 bg-white"
+                                            />
+                                        ) : (
+                                            <div className="w-full h-44 rounded-lg border-2 border-dashed border-zinc-200 bg-white flex flex-col items-center justify-center text-zinc-400 text-xs font-medium mb-3">
+                                                <span>No Preview Selected</span>
+                                            </div>
+                                        )}
+                                    </div>
+                                    <div className="space-y-2">
+                                        <input
+                                            type="file"
+                                            accept="image/*"
+                                            onChange={handleBackFileChange}
+                                            className="text-xs w-full file:mr-4 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-[10px] file:font-bold file:uppercase file:bg-zinc-150 file:text-zinc-700 hover:file:bg-zinc-250 cursor-pointer"
+                                        />
+                                        <input
+                                            name="imageBack"
+                                            placeholder="Or enter direct image URL"
+                                            value={form.imageBack}
+                                            onChange={handleChange}
+                                            className="w-full border border-zinc-200 rounded-lg px-3 py-2.5 text-xs font-medium focus:outline-none focus:border-zinc-955 bg-white"
+                                        />
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Buttons actions */}
+                            <div className="flex justify-between items-center pt-4 border-t border-zinc-150">
+                                <div className="flex gap-3">
+                                    <button
+                                        type="submit"
+                                        disabled={uploading}
+                                        className="bg-zinc-950 hover:bg-[#cc0000] text-white px-5 py-2.5 rounded-lg text-xs font-bold uppercase tracking-wider transition-all disabled:opacity-50 cursor-pointer shadow-sm active:scale-95"
+                                    >
+                                        {uploading ? "Saving..." : editingId ? "Update Product" : "Add Product"}
+                                    </button>
+                                    <button 
+                                        type="button" 
+                                        onClick={() => { resetForm(); setIsModalOpen(false); }} 
+                                        className="border border-zinc-200 bg-white hover:bg-zinc-50 text-zinc-650 px-5 py-2.5 rounded-lg text-xs font-bold uppercase tracking-wider transition-colors cursor-pointer active:scale-95"
+                                    >
+                                        Cancel
+                                    </button>
+                                </div>
+                                {editingId && (
+                                    <button 
+                                        type="button" 
+                                        onClick={handleDelete} 
+                                        className="bg-red-50 hover:bg-red-100 text-red-600 border border-red-200 px-5 py-2.5 rounded-lg text-xs font-bold uppercase tracking-wider transition-colors cursor-pointer active:scale-95"
+                                    >
+                                        Delete Product
+                                    </button>
+                                )}
+                            </div>
+                        </form>
+                    </div>
                 </div>
-            </form>
+            )}
 
             {/* Products Table */}
-            <div className="bg-white rounded-3xl border border-zinc-200/50 overflow-hidden shadow-[0_8px_30px_rgb(0,0,0,0.005)]">
+            <div className="bg-white rounded-xl border border-zinc-200/50 overflow-hidden shadow-[0_4px_20px_rgba(0,0,0,0.01)]">
                 <div className="overflow-x-auto">
                     <table className="w-full text-left border-collapse">
                         <thead>
-                            <tr className="bg-zinc-50 border-b border-zinc-200/50 text-[10px] text-zinc-400 font-bold uppercase tracking-wider">
+                            <tr className="bg-zinc-50 border-b border-zinc-200/50 text-[10px] text-zinc-400 font-bold uppercase tracking-wider whitespace-nowrap">
                                 <th className="p-4 pl-6">Mockups (Front / Back)</th>
                                 <th className="p-4">Name</th>
                                 <th className="p-4">Color</th>
@@ -312,7 +357,7 @@ function AdminProducts() {
                         </thead>
                         <tbody className="divide-y divide-zinc-200/40 text-xs font-medium">
                             {products.map((p) => (
-                                <tr key={p.id} className="hover:bg-zinc-50/20 transition-colors">
+                                <tr key={p.id} className="hover:bg-zinc-50/20 transition-colors whitespace-nowrap">
                                     <td className="p-4 pl-6">
                                         <div className="flex items-center gap-2">
                                             {/* Front Mockup */}
@@ -400,6 +445,28 @@ function AdminProducts() {
                             alt="Mockup Preview" 
                             className="max-w-full max-h-[70vh] object-contain rounded-2xl"
                         />
+                    </div>
+                </div>
+            )}
+
+            {/* Custom Success Dialog Box */}
+            {successPopup && (
+                <div className="fixed inset-0 bg-zinc-950/45 backdrop-blur-xs z-50 flex items-center justify-center p-4 animate-[fadeIn_0.2s_ease-out]">
+                    <div 
+                        className="bg-white border border-zinc-200 rounded-xl p-6 max-w-sm w-full text-center shadow-2xl space-y-4 animate-[modalScaleUp_0.3s_cubic-bezier(0.16,1,0.3,1)]"
+                        onClick={e => e.stopPropagation()}
+                    >
+                        <div className="w-12 h-12 rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center mx-auto text-xl font-bold border border-emerald-100 shadow-sm animate-bounce">
+                            ✓
+                        </div>
+                        <h4 className="text-sm font-black text-zinc-900 uppercase tracking-widest">Success</h4>
+                        <p className="text-xs text-zinc-500 font-bold leading-relaxed">{successPopup}</p>
+                        <button
+                            onClick={() => setSuccessPopup(null)}
+                            className="w-full bg-zinc-950 hover:bg-[#cc0000] text-white py-2.5 rounded-lg text-[10px] font-bold uppercase tracking-wider transition-all duration-200 cursor-pointer shadow-sm active:scale-95"
+                        >
+                            Dismiss
+                        </button>
                     </div>
                 </div>
             )}

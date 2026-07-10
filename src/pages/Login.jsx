@@ -77,6 +77,7 @@ function Login() {
 
                 if (supabaseLoginData.access_token) {
                     localStorage.setItem("supabaseAccessToken", supabaseLoginData.access_token);
+                    localStorage.removeItem("isAdmin");
                 }
 
                 // 2. Fetch or sync profile in our local backend database

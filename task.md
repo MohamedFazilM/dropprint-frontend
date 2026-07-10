@@ -1,7 +1,6 @@
-- `[x]` Update `cartStore.js` unique keys to support dual front/back designs
-- `[x]` Update `TShirtModel.jsx` to load front/back textures and project decals using portals
-- `[x]` Update `TShirtViewer.jsx` to pass down front/back design parameters
-- `[x]` Update `DesignStudio.jsx` to manage independent front/back states, transparent Konva bounds, and dual-side assets
-- `[x]` Update `Cart.jsx` to render both front/back thumbnail overlays and aspect badges
-- `[x]` Update `Checkout.jsx` background sync loop and order payload mappings
-- `[x]` Update `AdminOrders.jsx` to display front/back order thumbnails and download links
+- `[x]` Make AdminNavbar responsive (add mobile toggle and vertical dropdown menu)
+- `[x]` Make AdminDashboard responsive (adjust outer margins, stats cards grid, trends header)
+- `[x]` Make AdminOrders responsive (adjust outer margins, layout flow)
+- `[x]` Make AdminProducts responsive (adjust padding, set table cells `whitespace-nowrap` for clean scroll)
+- `[x]` Make AdminLedger responsive (adjust padding, set table cells `whitespace-nowrap` for clean scroll)
+- `[x]` Make LedgerHistoryModal responsive (optimize padding sizing)

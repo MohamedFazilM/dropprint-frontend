@@ -131,6 +131,16 @@ function Checkout() {
                     const placement = (frontText && backText) ? `Front: ${frontText}, Back: ${backText}` : (frontText || backText || "Center");
                     formData.append("position", placement);
 
+                    const primaryProps = (item.design.front && item.design.front.shapeProps) 
+                        ? item.design.front.shapeProps 
+                        : ((item.design.back && item.design.back.shapeProps) ? item.design.back.shapeProps : null);
+                    if (primaryProps) {
+                        formData.append("positionX", primaryProps.x ?? 130);
+                        formData.append("positionY", primaryProps.y ?? 160);
+                        formData.append("scale", primaryProps.scaleX ?? 1);
+                        formData.append("rotation", primaryProps.rotation ?? 0);
+                    }
+
                     // Upload Front Design if pending
                     if (item.design.front) {
                         if (item.design.front.isUploading) {

@@ -50,7 +50,7 @@ function AdminLedger() {
     });
 
     return (
-        <div style={{ fontFamily: "'Outfit', sans-serif" }} className="p-8 max-w-7xl mx-auto space-y-8">
+        <div style={{ fontFamily: "'Outfit', sans-serif" }} className="p-4 sm:p-8 max-w-7xl mx-auto space-y-8">
             <div>
                 <span style={{
                     display: "inline-block",
@@ -98,7 +98,7 @@ function AdminLedger() {
                 <div className="overflow-x-auto">
                     <table className="w-full text-left border-collapse">
                         <thead>
-                            <tr className="bg-zinc-50 border-b border-zinc-200/50 text-[10px] text-zinc-400 font-bold uppercase tracking-wider">
+                            <tr className="bg-zinc-50 border-b border-zinc-200/50 text-[10px] text-zinc-400 font-bold uppercase tracking-wider whitespace-nowrap">
                                 <th className="p-4 pl-6">Entity ID</th>
                                 <th className="p-4">Action</th>
                                 <th className="p-4">Description</th>
@@ -108,7 +108,7 @@ function AdminLedger() {
                         </thead>
                         <tbody className="divide-y divide-zinc-200/40 text-xs">
                             {filtered.map((entry) => (
-                                <tr key={entry.id} className="hover:bg-zinc-50/20 transition-colors">
+                                <tr key={entry.id} className="hover:bg-zinc-50/20 transition-colors whitespace-nowrap">
                                     <td className="p-4 pl-6">
                                         <span className={`px-2.5 py-0.5 rounded-full border text-[10px] font-bold ${ENTITY_COLORS[entry.entityType] || "bg-zinc-50 border-zinc-150 text-zinc-500"}`}>
                                             {entry.entityId}
