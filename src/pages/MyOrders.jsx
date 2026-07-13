@@ -170,14 +170,35 @@ function MyOrders() {
                         {filteredOrders.map((order) => 
                             order.items?.map((item) => {
                                 const hasFront = !!item.design?.front?.fileUrl || (item.design?.printArea !== "Back" && !!item.design?.fileUrl);
-                                const hasBack = !!item.design?.back?.fileUrl || (item.design?.printArea === "Back" && !!item.design?.fileUrl);
+                                const hasBack = !!item.design?.fileUrlBack || !!item.design?.back?.fileUrl || (item.design?.printArea === "Back" && !!item.design?.fileUrl);
                                 const frontUrl = item.design?.front?.fileUrl || (item.design?.printArea !== "Back" ? item.design?.fileUrl : null);
-                                const backUrl = item.design?.back?.fileUrl || (item.design?.printArea === "Back" ? item.design?.fileUrl : null);
+                                const backUrl = item.design?.fileUrlBack || item.design?.back?.fileUrl || (item.design?.printArea === "Back" ? item.design?.fileUrl : null);
 
                                 const showBack = hasBack && !hasFront;
                                 const shirtImage = showBack && item.product.imageBack
                                     ? item.product.imageBack
                                     : (item.product.imageMain || "https://placehold.co/400x500/f3f4f6/9ca3af?text=No+Image");
+
+                                const designPosition = item.design?.position || "";
+                                let selectedColor = item.product?.color || "White";
+                                if (designPosition.includes("Color: ")) {
+                                    const parts = designPosition.split("Color: ");
+                                    const partAfterColor = parts[parts.length - 1].trim();
+                                    selectedColor = partAfterColor.includes("|") 
+                                        ? partAfterColor.split("|")[0].trim() 
+                                        : partAfterColor;
+                                }
+                                if (!selectedColor || typeof selectedColor !== "string") {
+                                    selectedColor = "White";
+                                }
+
+                                const filterStyles = {
+                                    Black: "brightness(0.2)",
+                                    Gray: "grayscale(1) brightness(0.7)",
+                                    Red: "sepia(1) saturate(10) hue-rotate(-50deg) brightness(0.6)",
+                                    Navy: "sepia(1) saturate(5) hue-rotate(180deg) brightness(0.4)"
+                                };
+                                const imageFilter = filterStyles[selectedColor] || "none";
 
                                 return (
                                     <div 
@@ -190,40 +211,55 @@ function MyOrders() {
                                         <div className="flex gap-4 items-center flex-1 w-full">
                                             
                                             {/* Thumbnail Image Stack */}
-                                            <div className="relative w-16 h-20 bg-gray-50 border border-gray-100 rounded-lg overflow-hidden flex items-center justify-center p-1.5 flex-shrink-0">
+                                            <div 
+                                                style={{ backgroundColor: selectedColor.startsWith("#") ? selectedColor : ({"White": "#ffffff", "Black": "#222222", "Red": "#dc2626", "Navy": "#1e3a8a", "Gray": "#9ca3af"}[selectedColor] || "#ffffff") }}
+                                                className="relative w-16 h-20 border border-gray-150 rounded-lg overflow-hidden flex items-center justify-center p-1.5 flex-shrink-0"
+                                            >
                                                 <img
                                                     src={shirtImage}
                                                     alt={item.product.name}
-                                                    className="w-full h-full object-contain"
+                                                    className="w-full h-full object-contain mix-blend-multiply opacity-90"
                                                     onError={(e) => { e.target.src = "https://placehold.co/400x500/f3f4f6/9ca3af?text=No+Image"; }}
                                                 />
                                                 {showBack ? (
                                                     backUrl && (
-                                                        <div className="absolute inset-0 flex items-center justify-center p-2">
+                                                        <div className="absolute inset-0 flex items-center justify-center p-2 z-20">
                                                             <img src={backUrl} className="w-[45%] h-[45%] object-contain mt-0.5" />
                                                         </div>
                                                     )
                                                 ) : (
                                                     frontUrl && (
-                                                        <div className="absolute inset-0 flex items-center justify-center p-2">
+                                                        <div className="absolute inset-0 flex items-center justify-center p-2 z-20">
                                                             <img src={frontUrl} className="w-[45%] h-[45%] object-contain mt-0.5" />
                                                         </div>
                                                     )
                                                 )}
                                                 {item.design && (
-                                                    <span className="absolute bottom-0.5 left-0.5 text-[6px] bg-zinc-950 text-white font-extrabold px-1 py-0.2 rounded uppercase">
+                                                    <span className="absolute bottom-0.5 left-0.5 text-[6px] bg-zinc-950 text-white font-extrabold px-1 py-0.2 rounded uppercase z-30">
                                                         Custom
                                                     </span>
                                                 )}
                                             </div>
-
+ 
                                             {/* Description text */}
                                             <div className="space-y-1">
                                                 <h4 className="font-extrabold text-gray-900 text-sm md:text-base line-clamp-1 hover:text-[#2874f0] transition-colors">
                                                     {item.product.name}
                                                 </h4>
                                                 <div className="flex gap-2 flex-wrap items-center text-[11px] font-bold text-gray-400">
-                                                    <span className="uppercase">{item.product.color}</span>
+                                                    <span className="uppercase flex items-center gap-1">
+                                                        {selectedColor}
+                                                        {selectedColor.startsWith("#") ? (
+                                                            <span 
+                                                                style={{ backgroundColor: selectedColor }} 
+                                                                className="inline-block w-2.5 h-2.5 rounded-full border border-gray-300 shadow-sm"
+                                                            />
+                                                        ) : (
+                                                            <span>
+                                                                {{"White": "⚪", "Black": "⚫", "Red": "🔴", "Navy": "🔵", "Gray": "🔘"}[selectedColor] || "⚪"}
+                                                            </span>
+                                                        )}
+                                                    </span>
                                                     <span>•</span>
                                                     <span>Size: {item.size}</span>
                                                     <span>•</span>

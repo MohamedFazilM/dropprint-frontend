@@ -54,7 +54,6 @@ function Checkout() {
 
     const [showSuccess, setShowSuccess] = useState(false);
     const [orderId, setOrderId] = useState(null);
-    const [syncing, setSyncing] = useState(false);
     const [placingOrder, setPlacingOrder] = useState(false);
     const syncInProgress = useRef(new Set());
 
@@ -67,6 +66,8 @@ function Checkout() {
             return [];
         }
     }, [isDirect, directCheckoutItem, cartItems]);
+
+    const [syncing, setSyncing] = useState(items.some(item => item.design?.isUploading === true));
 
     const getTotal = () => {
         try {
@@ -114,22 +115,25 @@ function Checkout() {
                     const calcPrintArea = item.design.front && item.design.back ? "Front and Back" : (item.design.front ? "Front" : "Back");
                     formData.append("printArea", calcPrintArea);
 
-                    let frontText = "";
-                    let backText = "";
+                    let placementParts = [];
                     if (item.design.front && item.design.front.shapeProps) {
+                        let frontText = "Center";
                         const x = item.design.front.shapeProps.x;
                         if (x < 110) frontText = "Left";
                         else if (x > 150) frontText = "Right";
-                        else frontText = "Center";
+                        placementParts.push(`Front: ${frontText} [x: ${Math.round(item.design.front.shapeProps.x)}, y: ${Math.round(item.design.front.shapeProps.y)}, scale: ${Number(item.design.front.shapeProps.scaleX || 1).toFixed(2)}, rotation: ${Math.round(item.design.front.shapeProps.rotation || 0)}]`);
                     }
                     if (item.design.back && item.design.back.shapeProps) {
+                        let backText = "Center";
                         const x = item.design.back.shapeProps.x;
                         if (x < 110) backText = "Left";
                         else if (x > 150) backText = "Right";
-                        else backText = "Center";
+                        placementParts.push(`Back: ${backText} [x: ${Math.round(item.design.back.shapeProps.x)}, y: ${Math.round(item.design.back.shapeProps.y)}, scale: ${Number(item.design.back.shapeProps.scaleX || 1).toFixed(2)}, rotation: ${Math.round(item.design.back.shapeProps.rotation || 0)}]`);
                     }
-                    const placement = (frontText && backText) ? `Front: ${frontText}, Back: ${backText}` : (frontText || backText || "Center");
-                    formData.append("position", placement);
+                    const placement = placementParts.length > 0 ? placementParts.join(" | ") : "Center";
+                    formData.append("position", "Color: " + (item.product.color || "White") + " | " + placement);
+                    console.log("[Checkout] Syncing design description to backend:", item.design.description);
+                    formData.append("description", item.design.description || "");
 
                     const primaryProps = (item.design.front && item.design.front.shapeProps) 
                         ? item.design.front.shapeProps 
@@ -203,7 +207,8 @@ function Checkout() {
                         fileUrlBack: finalBackDesign?.fileUrl || "",
                         printArea: finalFrontDesign && finalBackDesign ? "Front and Back" : (finalFrontDesign ? "Front" : "Back"),
                         front: finalFrontDesign,
-                        back: finalBackDesign
+                        back: finalBackDesign,
+                        description: item.design.description
                     };
 
                     if (isDirect) {
@@ -234,12 +239,21 @@ function Checkout() {
     }, [items, isDirect, updateDesign, updateDirectCheckoutDesign]);
 
     const handleChange = (e) => {
-        setForm({ ...form, [e.target.name]: e.target.value });
+        let val = e.target.value;
+        if (e.target.name === "phone") {
+            val = val.replace(/\D/g, "").slice(0, 10);
+        }
+        setForm({ ...form, [e.target.name]: val });
     };
 
     const handlePlaceOrder = async (e) => {
         e.preventDefault();
         if (syncing || placingOrder) return;
+
+        if (!/^\d{10}$/.test((form.phone || "").trim())) {
+            alert("Please enter a valid 10-digit mobile number.");
+            return;
+        }
 
         setPlacingOrder(true);
 
@@ -315,11 +329,24 @@ function Checkout() {
                     <h2 className="text-sm font-extrabold text-zinc-800 mb-3 uppercase tracking-wider">Order Summary</h2>
                     <div className="space-y-2">
                         {items.map((item) => (
-                            <div key={`${item.product.id}-${item.size}`} className="flex justify-between text-xs py-1 border-b border-zinc-100 last:border-0">
-                                <span className="text-zinc-600 font-medium">{item.product.name} ({item.size}) x{item.qty}</span>
-                                <span className="text-zinc-800 font-bold">₹{item.unitPrice * item.qty}</span>
-                            </div>
-                        ))}
+                             <div key={`${item.product.id}-${item.size}`} className="flex flex-col py-2 border-b border-zinc-100 last:border-0 text-xs">
+                                 <div className="flex justify-between">
+                                     <span className="text-zinc-600 font-bold">{item.product.name} ({item.size}) x{item.qty}</span>
+                                     <span className="text-zinc-800 font-bold">₹{item.unitPrice * item.qty}</span>
+                                 </div>
+                                 {item.design?.description && (
+                                     <div className="mt-1.5 flex items-start gap-2 bg-rose-50/40 border border-rose-100/50 rounded-xl px-3 py-2 max-w-sm">
+                                         <span className="text-[10px] mt-0.5">💬</span>
+                                         <div>
+                                             <span className="text-[8px] text-[#cc0000] font-black uppercase tracking-wider block mb-0.5 leading-none">Print Instructions</span>
+                                             <p className="text-[10px] font-bold text-zinc-700 leading-tight">
+                                                 "{item.design.description}"
+                                             </p>
+                                         </div>
+                                     </div>
+                                 )}
+                             </div>
+                         ))}
                     </div>
                     <div className="flex justify-between font-extrabold mt-4 border-t border-zinc-200 pt-3 text-sm text-zinc-950">
                         <span>Total Cost</span>
@@ -333,7 +360,8 @@ function Checkout() {
                         <input
                             type="text" name="name" placeholder="Enter your full name"
                             value={form.name} onChange={handleChange}
-                            className="w-full border border-zinc-200/60 rounded-lg px-4 py-3 text-sm font-medium focus:border-zinc-900 focus:ring-0 outline-none transition-all" required
+                            disabled={syncing || placingOrder}
+                            className="w-full border border-zinc-200/60 rounded-lg px-4 py-3 text-sm font-medium focus:border-zinc-900 focus:ring-0 outline-none transition-all disabled:opacity-60 disabled:bg-zinc-50" required
                         />
                     </div>
                     <div className="space-y-1">
@@ -341,7 +369,8 @@ function Checkout() {
                         <input
                             type="email" name="email" placeholder="name@example.com"
                             value={form.email} onChange={handleChange}
-                            className="w-full border border-zinc-200/60 rounded-lg px-4 py-3 text-sm font-medium focus:border-zinc-900 focus:ring-0 outline-none transition-all" required
+                            disabled={syncing || placingOrder}
+                            className="w-full border border-zinc-200/60 rounded-lg px-4 py-3 text-sm font-medium focus:border-zinc-900 focus:ring-0 outline-none transition-all disabled:opacity-60 disabled:bg-zinc-50" required
                         />
                     </div>
                     <div className="space-y-1">
@@ -349,7 +378,8 @@ function Checkout() {
                         <input
                             type="tel" name="phone" placeholder="Enter 10-digit number"
                             value={form.phone} onChange={handleChange}
-                            className="w-full border border-zinc-200/60 rounded-lg px-4 py-3 text-sm font-medium focus:border-zinc-900 focus:ring-0 outline-none transition-all" required
+                            disabled={syncing || placingOrder}
+                            className="w-full border border-zinc-200/60 rounded-lg px-4 py-3 text-sm font-medium focus:border-zinc-900 focus:ring-0 outline-none transition-all disabled:opacity-60 disabled:bg-zinc-50" required
                         />
                     </div>
                     <div className="space-y-1">
@@ -357,7 +387,8 @@ function Checkout() {
                         <textarea
                             name="address" placeholder="Flat/House no., Street, Area, Pin Code" rows="3"
                             value={form.address} onChange={handleChange}
-                            className="w-full border border-zinc-200/60 rounded-lg px-4 py-3 text-sm font-medium focus:border-zinc-900 focus:ring-0 outline-none transition-all" required
+                            disabled={syncing || placingOrder}
+                            className="w-full border border-zinc-200/60 rounded-lg px-4 py-3 text-sm font-medium focus:border-zinc-900 focus:ring-0 outline-none transition-all disabled:opacity-60 disabled:bg-zinc-50" required
                         />
                     </div>
 
@@ -365,9 +396,40 @@ function Checkout() {
                         Payment Method: <strong className="text-zinc-800">Cash on Delivery</strong> (online payment coming soon)
                     </div>
 
+                    {/* Background Design Sync Error Banner */}
+                    {items.some(item => item.design?.error === true) && (
+                        <div className="bg-red-50 border border-red-200/60 rounded-2xl p-4 text-xs text-red-750 font-bold flex flex-col gap-2.5 shadow-sm">
+                            <p>⚠️ Failed to save your custom design sticker in the background database due to a connection or server error.</p>
+                            <button 
+                                type="button"
+                                onClick={() => {
+                                    items.forEach(item => {
+                                        if (item.design && item.design.error) {
+                                            const resetDesign = { 
+                                                ...item.design, 
+                                                isUploading: true, 
+                                                error: false 
+                                            };
+                                            if (isDirect) {
+                                                updateDirectCheckoutDesign(resetDesign);
+                                            } else {
+                                                updateDesign(item.product.id, item.size, item.design.id, resetDesign);
+                                            }
+                                        }
+                                    });
+                                    syncInProgress.current.clear();
+                                    setSyncing(true);
+                                }}
+                                className="w-fit bg-red-600 hover:bg-red-700 text-white px-3.5 py-2 rounded-xl font-extrabold uppercase tracking-wider transition-all duration-200 shadow cursor-pointer active:scale-95 text-[10px]"
+                            >
+                                Retry Uploading Designs
+                            </button>
+                        </div>
+                    )}
+
                     <button
                         type="submit"
-                        disabled={syncing || placingOrder}
+                        disabled={syncing || placingOrder || items.some(item => item.design?.error === true)}
                         className="w-full bg-zinc-950 hover:bg-zinc-800 text-white py-4 rounded-lg font-extrabold text-xs uppercase tracking-wider transition-all duration-300 shadow-md shadow-zinc-950/10 active:scale-[0.99] cursor-pointer disabled:opacity-50"
                     >
                         {syncing ? (
@@ -456,7 +518,7 @@ function Checkout() {
                                 <button
                                     onClick={() => {
                                         setShowSuccess(false);
-                                        navigate("/");
+                                        navigate("/shop");
                                     }}
                                     className="w-full bg-zinc-100 hover:bg-zinc-200 text-zinc-800 py-3.5 px-6 rounded-xl font-bold text-xs uppercase tracking-wider transition-all duration-200 cursor-pointer active:scale-[0.99]"
                                 >

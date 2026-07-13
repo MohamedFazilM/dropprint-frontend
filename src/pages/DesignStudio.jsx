@@ -146,6 +146,7 @@ function DesignStudio() {
 
     // 5 Manual colors: White, Black, Red, Navy, Gray
     const [selectedColor, setSelectedColor] = useState("White");
+    const [designDescription, setDesignDescription] = useState("");
 
     // 3D Diagnostics & loading state
     const [modelLoaded, setModelLoaded] = useState(false);
@@ -379,7 +380,8 @@ function DesignStudio() {
                         base64Data: backBase64,
                         isUploading: true,
                         shapeProps: backShapeProps
-                    } : null
+                    } : null,
+                    description: designDescription.trim()
                 };
 
                 const totalUnitPrice = product.basePrice + priceAddon;
@@ -414,22 +416,24 @@ function DesignStudio() {
             const calcPrintArea = frontFile && backFile ? "Front and Back" : (frontFile ? "Front" : "Back");
             formData.append("printArea", calcPrintArea);
 
-            let frontText = "";
-            let backText = "";
+            let placementParts = [];
             if (frontFile && frontShapeProps) {
+                let frontText = "Center";
                 const x = frontShapeProps.x;
                 if (x < 110) frontText = "Left";
                 else if (x > 150) frontText = "Right";
-                else frontText = "Center";
+                placementParts.push(`Front: ${frontText} [x: ${Math.round(frontShapeProps.x)}, y: ${Math.round(frontShapeProps.y)}, scale: ${Number(frontShapeProps.scaleX || 1).toFixed(2)}, rotation: ${Math.round(frontShapeProps.rotation || 0)}]`);
             }
             if (backFile && backShapeProps) {
+                let backText = "Center";
                 const x = backShapeProps.x;
                 if (x < 110) backText = "Left";
                 else if (x > 150) backText = "Right";
-                else backText = "Center";
+                placementParts.push(`Back: ${backText} [x: ${Math.round(backShapeProps.x)}, y: ${Math.round(backShapeProps.y)}, scale: ${Number(backShapeProps.scaleX || 1).toFixed(2)}, rotation: ${Math.round(backShapeProps.rotation || 0)}]`);
             }
-            const placement = (frontText && backText) ? `Front: ${frontText}, Back: ${backText}` : (frontText || backText || "Center");
-            formData.append("position", placement);
+            const placement = placementParts.length > 0 ? placementParts.join(" | ") : "Center";
+            formData.append("position", "Color: " + selectedColor + " | " + placement);
+            formData.append("description", designDescription.trim());
 
             const primaryProps = (frontFile && frontShapeProps) ? frontShapeProps : ((backFile && backShapeProps) ? backShapeProps : null);
             if (primaryProps) {
@@ -455,6 +459,7 @@ function DesignStudio() {
                 formData.append("backFile", uploadFile);
             }
 
+            console.log("[DesignStudio] Submitting design with description:", designDescription.trim());
             const res = await axiosClient.post("/designs/upload", formData, {
                 headers: { "Content-Type": "multipart/form-data" },
             });
@@ -472,7 +477,8 @@ function DesignStudio() {
                 fileUrlBack: res.data.fileUrlBack || "",
                 printArea: res.data.printArea,
                 front: uploadedFront,
-                back: uploadedBack
+                back: uploadedBack,
+                description: res.data.description || designDescription.trim()
             };
             const totalUnitPrice = product.basePrice + priceAddon;
 
@@ -914,6 +920,19 @@ function DesignStudio() {
                                     );
                                 })}
                             </div>
+                        </div>
+
+                        {/* Card Block 6: Design Description Input */}
+                        <div className="space-y-3">
+                            <label className="text-xs font-extrabold text-zinc-400 uppercase tracking-wider block">06. Describe your design requirements (Optional)</label>
+                            <textarea
+                                value={designDescription}
+                                onChange={(e) => setDesignDescription(e.target.value)}
+                                placeholder="e.g., Please print the chest logo slightly smaller, or add a glossy finish..."
+                                className="w-full p-3 border border-zinc-200/50 rounded-lg text-sm font-semibold focus:border-[#cc0000] focus:ring-0 outline-none transition-all bg-zinc-50/50 hover:bg-zinc-50 shadow-sm"
+                                rows="2"
+                                maxLength="300"
+                            />
                         </div>
 
                         {/* Summary breakdown panel */}

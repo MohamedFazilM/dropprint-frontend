@@ -52,6 +52,14 @@ function Login() {
             return;
         }
 
+        if (!isLoginMode) {
+            if (!/^\d{10}$/.test(phone.trim())) {
+                setError("Mobile number must be exactly 10 digits.");
+                setLoading(false);
+                return;
+            }
+        }
+
         try {
             if (isLoginMode) {
                 // 1. Authenticate using Supabase Auth REST Endpoint
@@ -82,6 +90,7 @@ function Login() {
 
                 // 2. Fetch or sync profile in our local backend database
                 let localCustomerData;
+                let isNewUser = false;
                 try {
                     const dbRes = await axiosClient.post("/customers/login", { email, password });
                     localCustomerData = dbRes.data;
@@ -97,6 +106,7 @@ function Login() {
                             password
                         });
                         localCustomerData = syncRes.data;
+                        isNewUser = true;
                     } else {
                         throw dbErr;
                     }
@@ -105,7 +115,18 @@ function Login() {
                 // 3. Store customer user session and navigate
                 localStorage.setItem("customerUser", JSON.stringify(localCustomerData));
                 window.dispatchEvent(new Event("customerLoginUpdate"));
-                setSuccessMsg("Welcome back, " + localCustomerData.name + "!");
+
+                const justSignedUp = sessionStorage.getItem("justSignedUp") === "true";
+                const createdAt = supabaseLoginData.user?.created_at ? new Date(supabaseLoginData.user.created_at) : null;
+                const isJustCreated = createdAt ? (new Date() - createdAt) < 90000 : false;
+
+                if (isNewUser || justSignedUp || isJustCreated) {
+                    setSuccessMsg("Welcome, " + localCustomerData.name + "!");
+                    sessionStorage.removeItem("justSignedUp");
+                } else {
+                    setSuccessMsg("Welcome back, " + localCustomerData.name + "!");
+                }
+
                 setTimeout(() => {
                     navigate(redirectTo);
                 }, 1000);
@@ -146,6 +167,7 @@ function Login() {
                 const isConfirmed = supabaseSignupData.user?.confirmed_at || supabaseSignupData.session;
 
                 if (!isConfirmed) {
+                    sessionStorage.setItem("justSignedUp", "true");
                     setSuccessMsg("Registration successful! A verification email has been sent to " + email + ". Please click the verification link in your email to activate your account before logging in.");
                     // Reset inputs
                     setName("");
@@ -161,7 +183,7 @@ function Login() {
                     }
                     localStorage.setItem("customerUser", JSON.stringify(response.data));
                     window.dispatchEvent(new Event("customerLoginUpdate"));
-                    setSuccessMsg("Registration successful! Welcome, " + response.data.name + "!");
+                    setSuccessMsg("Welcome, " + response.data.name + "!");
                     setTimeout(() => {
                         navigate(redirectTo);
                     }, 1200);
@@ -378,8 +400,8 @@ function Login() {
                                         required
                                         disabled={loading}
                                         value={phone}
-                                        onChange={(e) => setPhone(e.target.value)}
-                                        placeholder="+91 XXXXX XXXXX"
+                                        onChange={(e) => setPhone(e.target.value.replace(/\D/g, "").slice(0, 10))}
+                                        placeholder="Enter 10-digit number"
                                         className="login-input"
                                     />
                                 </div>

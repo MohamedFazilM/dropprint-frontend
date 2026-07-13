@@ -31,6 +31,12 @@ function TrackOrder() {
         e.preventDefault();
         setError("");
         setOrder(null);
+
+        if (!/^\d{10}$/.test((phone || "").trim())) {
+            setError("Please enter a valid 10-digit mobile number.");
+            return;
+        }
+
         setLoading(true);
 
         let queryId = orderId.trim().toLowerCase();
@@ -110,9 +116,9 @@ function TrackOrder() {
                             <label className="text-xs font-bold text-zinc-400 uppercase tracking-widest">Phone Number</label>
                             <input
                                 type="tel"
-                                placeholder="Enter phone number"
+                                placeholder="Enter 10-digit number"
                                 value={phone}
-                                onChange={(e) => setPhone(e.target.value)}
+                                onChange={(e) => setPhone(e.target.value.replace(/\D/g, "").slice(0, 10))}
                                 className="border border-zinc-200 rounded-lg px-4 py-3 text-sm focus:outline-none focus:border-zinc-900 transition-colors font-bold"
                                 required
                             />

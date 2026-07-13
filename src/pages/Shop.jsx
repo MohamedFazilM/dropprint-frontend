@@ -31,7 +31,7 @@ function Shop() {
 
         axiosClient.get("/products")
             .then((response) => {
-                const data = response.data;
+                const data = response.data.filter(p => p.id !== "1" && p.id !== "2" && p.id !== "3" && p.id !== 1 && p.id !== 2 && p.id !== 3);
                 setProducts(data);
                 localStorage.setItem("cached_products", JSON.stringify(data));
                 setLoading(false);

@@ -8,6 +8,7 @@ function AdminDashboard() {
     const [activeChartTab, setActiveChartTab] = useState("revenue"); // "revenue" or "orders"
     const [selectedPoint, setSelectedPoint] = useState(null);
     const [hoveredIndex, setHoveredIndex] = useState(null);
+    const [timeFilter, setTimeFilter] = useState("all"); // "today", "yesterday", "month", "all"
 
     useEffect(() => {
         Promise.all([
@@ -31,13 +32,38 @@ function AdminDashboard() {
         );
     }
 
-    const totalRevenue = orders.reduce((sum, o) => sum + o.totalPrice, 0);
-    const pendingOrders = orders.filter((o) => o.status === "placed").length;
+    // Filter orders based on selected time range
+    const filteredOrders = orders.filter((o) => {
+        if (!o.createdAt) return timeFilter === "all";
+        const orderDate = new Date(o.createdAt);
+        const today = new Date();
+        
+        if (timeFilter === "today") {
+            return orderDate.getDate() === today.getDate() &&
+                   orderDate.getMonth() === today.getMonth() &&
+                   orderDate.getFullYear() === today.getFullYear();
+        }
+        if (timeFilter === "yesterday") {
+            const yesterday = new Date();
+            yesterday.setDate(yesterday.getDate() - 1);
+            return orderDate.getDate() === yesterday.getDate() &&
+                   orderDate.getMonth() === yesterday.getMonth() &&
+                   orderDate.getFullYear() === yesterday.getFullYear();
+        }
+        if (timeFilter === "month") {
+            return orderDate.getMonth() === today.getMonth() &&
+                   orderDate.getFullYear() === today.getFullYear();
+        }
+        return true; // "all"
+    });
+
+    const totalRevenue = filteredOrders.reduce((sum, o) => sum + o.totalPrice, 0);
+    const pendingOrders = filteredOrders.filter((o) => o.status === "placed").length;
 
     const stats = [
         {
-            label: "Total Orders",
-            value: orders.length,
+            label: timeFilter === "all" ? "Total Orders" : timeFilter === "today" ? "Orders (Today)" : timeFilter === "yesterday" ? "Orders (Yesterday)" : "Orders (This Month)",
+            value: filteredOrders.length,
             icon: (
                 <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
                     <path strokeLinecap="round" strokeLinejoin="round" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
@@ -46,7 +72,7 @@ function AdminDashboard() {
             color: "bg-blue-50 text-blue-600 border-blue-100",
         },
         {
-            label: "Pending Orders",
+            label: timeFilter === "all" ? "Pending Orders" : timeFilter === "today" ? "Pending (Today)" : timeFilter === "yesterday" ? "Pending (Yesterday)" : "Pending (This Month)",
             value: pendingOrders,
             icon: (
                 <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
@@ -56,7 +82,7 @@ function AdminDashboard() {
             color: "bg-amber-50 text-amber-600 border-amber-100",
         },
         {
-            label: "Total Revenue",
+            label: timeFilter === "all" ? "Total Revenue" : timeFilter === "today" ? "Revenue (Today)" : timeFilter === "yesterday" ? "Revenue (Yesterday)" : "Revenue (This Month)",
             value: `₹${totalRevenue.toLocaleString()}`,
             icon: (
                 <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
@@ -159,24 +185,51 @@ function AdminDashboard() {
 
     return (
         <div style={{ fontFamily: "'Outfit', sans-serif" }} className="p-4 sm:p-8 max-w-7xl mx-auto space-y-8">
-            <div>
-                <span style={{
-                    display: "inline-block",
-                    fontSize: "11px",
-                    fontWeight: 700,
-                    letterSpacing: "4px",
-                    textTransform: "uppercase",
-                    color: "#cc0000",
-                    marginBottom: "8px",
-                }}>OVERVIEW</span>
-                <h1 style={{
-                    fontFamily: "'Outfit', sans-serif",
-                    fontSize: "clamp(24px, 3.5vw, 36px)",
-                    fontWeight: 800,
-                    color: "#111",
-                    letterSpacing: "-1.5px",
-                    margin: "0",
-                }}>Dashboard</h1>
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                <div>
+                    <span style={{
+                        display: "inline-block",
+                        fontSize: "11px",
+                        fontWeight: 700,
+                        letterSpacing: "4px",
+                        textTransform: "uppercase",
+                        color: "#cc0000",
+                        marginBottom: "8px",
+                    }}>OVERVIEW</span>
+                    <h1 style={{
+                        fontFamily: "'Outfit', sans-serif",
+                        fontSize: "clamp(24px, 3.5vw, 36px)",
+                        fontWeight: 800,
+                        color: "#111",
+                        letterSpacing: "-1.5px",
+                        margin: "0",
+                    }}>Dashboard</h1>
+                </div>
+
+                {/* Time Range Selector Filter */}
+                <div className="flex bg-zinc-100 p-1 rounded-xl w-fit shadow-inner border border-zinc-200/50">
+                    {[
+                        { id: "today", label: "Today" },
+                        { id: "yesterday", label: "Yesterday" },
+                        { id: "month", label: "This Month" },
+                        { id: "all", label: "All Time" }
+                    ].map((tab) => {
+                        const isActive = timeFilter === tab.id;
+                        return (
+                            <button
+                                key={tab.id}
+                                onClick={() => setTimeFilter(tab.id)}
+                                className={`px-3 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-wider transition-all cursor-pointer ${
+                                    isActive 
+                                        ? "bg-white text-zinc-950 shadow-sm scale-[1.01]" 
+                                        : "text-zinc-500 hover:text-zinc-900 hover:bg-white/40"
+                                }`}
+                            >
+                                {tab.label}
+                            </button>
+                        );
+                    })}
+                </div>
             </div>
 
             {/* Key Stat Cards Grid */}

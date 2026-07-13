@@ -30,7 +30,8 @@ function AdminProducts() {
     const fetchProducts = () => {
         axiosClient.get("/products")
             .then((res) => {
-                setProducts(res.data);
+                const filtered = res.data.filter(p => p.id !== "1" && p.id !== "2" && p.id !== "3" && p.id !== 1 && p.id !== 2 && p.id !== 3);
+                setProducts(filtered);
                 setLoading(false);
             })
             .catch((err) => {
