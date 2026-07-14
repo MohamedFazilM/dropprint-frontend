@@ -5,7 +5,15 @@ const useCartStore = create(
     persist(
         (set, get) => ({
             items: [],
-            directCheckoutItem: null,
+            directCheckoutItem: (() => {
+                try {
+                    const stored = sessionStorage.getItem("dropprint-direct-checkout");
+                    return stored ? JSON.parse(stored) : null;
+                } catch (e) {
+                    console.error("[Zustand Store] Failed to parse sessionStorage direct-checkout:", e);
+                    return null;
+                }
+            })(),
 
             addToCart: (product, size, qty = 1, design = null, unitPrice = null) => {
                 console.log("[Zustand Store] addToCart called:", { product, size, qty, design, unitPrice });
@@ -66,6 +74,15 @@ const useCartStore = create(
             setDirectCheckoutItem: (item) => {
                 console.log("[Zustand Store] setDirectCheckoutItem called with item:", item);
                 set({ directCheckoutItem: item });
+                if (item) {
+                    try {
+                        sessionStorage.setItem("dropprint-direct-checkout", JSON.stringify(item));
+                    } catch (e) {
+                        console.error("[Zustand Store] Failed to save to sessionStorage:", e);
+                    }
+                } else {
+                    sessionStorage.removeItem("dropprint-direct-checkout");
+                }
                 console.log("[Zustand Store] State directCheckoutItem is now:", get().directCheckoutItem);
             },
 
@@ -73,7 +90,13 @@ const useCartStore = create(
                 console.log("[Zustand Store] updateDirectCheckoutDesign called:", finalDesign);
                 const current = get().directCheckoutItem;
                 if (current) {
-                    set({ directCheckoutItem: { ...current, design: finalDesign } });
+                    const updated = { ...current, design: finalDesign };
+                    set({ directCheckoutItem: updated });
+                    try {
+                        sessionStorage.setItem("dropprint-direct-checkout", JSON.stringify(updated));
+                    } catch (e) {
+                        console.error("[Zustand Store] Failed to save to sessionStorage:", e);
+                    }
                 }
                 console.log("[Zustand Store] directCheckoutItem after design update:", get().directCheckoutItem);
             },
@@ -89,6 +112,7 @@ const useCartStore = create(
         }),
         {
             name: "dropprint-cart-storage", // local storage key
+            partialize: (state) => ({ items: state.items }), // Only persist shopping cart items in localStorage, excluding directCheckoutItem
         }
     )
 );
