@@ -4,7 +4,7 @@ A modern custom T-shirt design platform that allows users to personalize product
 
 ## 🚀 Live Demo
 
-🌐 https://dropprint-frontend.netlify.app/
+🌐 https://dropprint-frontend.vercel.app/
 
 ---
 
