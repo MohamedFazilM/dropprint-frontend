@@ -1,16 +1,186 @@
-# React + Vite
+# 👕 DropPrint
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A modern custom T-shirt design platform that allows users to personalize products in real time using an interactive canvas editor and 3D product preview.
 
-Currently, two official plugins are available:
+## 🚀 Live Demo
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+🌐 https://dropprint.netlify.app/
 
-## React Compiler
+---
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## 📖 Overview
 
-## Expanding the ESLint configuration
+DropPrint is a full-stack web application built to simplify custom apparel design. Users can upload images, position and resize them on a T-shirt, preview the design in real time, and place customized orders.
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+The project focuses on responsive UI, interactive design editing, authentication, and modern frontend technologies.
+
+---
+
+## ✨ Features
+
+- 🎨 Interactive T-shirt Design Editor
+- 🖼 Upload Custom Images
+- ✏ Drag, Resize & Rotate Designs
+- 👕 Front & Back Design Support
+- 📱 Fully Responsive Design
+- 🔐 User Authentication
+- ☁ Cloud-Based Data Storage
+- ⚡ Fast Performance with React & Vite
+- 🎯 Modern UI/UX
+
+---
+
+## 🛠 Tech Stack
+
+### Frontend
+
+- React 19
+- Vite
+- Tailwind CSS
+- JavaScript
+
+### State Management
+
+- Zustand
+
+### Canvas Editor
+
+- Konva
+- React-Konva
+
+### Backend
+
+- Supabase
+
+### Authentication
+
+- Supabase Auth
+
+### Database
+
+- PostgreSQL (Supabase)
+
+### Tools
+
+- Git
+- GitHub
+- VS Code
+
+---
+
+## 📂 Project Structure
+
+```
+DropPrint
+│
+├── src
+│   ├── components
+│   ├── pages
+│   ├── hooks
+│   ├── store
+│   ├── services
+│   ├── assets
+│   └── utils
+│
+├── public
+├── package.json
+└── README.md
+```
+
+---
+
+## 🚀 Installation
+
+Clone the repository
+
+```bash
+git clone https://github.com/YourUsername/DropPrint.git
+```
+
+Go to the project folder
+
+```bash
+cd DropPrint
+```
+
+Install dependencies
+
+```bash
+npm install
+```
+
+Start the development server
+
+```bash
+npm run dev
+```
+
+---
+
+## 🔐 Environment Variables
+
+Create a `.env` file in the project root.
+
+```env
+VITE_SUPABASE_URL=YOUR_SUPABASE_URL
+VITE_SUPABASE_ANON_KEY=YOUR_SUPABASE_KEY
+```
+
+---
+
+## 📸 Screenshots
+
+### Home Page
+
+(Add Screenshot)
+
+### Product Page
+
+(Add Screenshot)
+
+### Design Studio
+
+(Add Screenshot)
+
+### Cart
+
+(Add Screenshot)
+
+### Checkout
+
+(Add Screenshot)
+
+---
+
+## 🎯 Future Improvements
+
+- AI Image Generation
+- Text Editor
+- Payment Gateway Integration
+- Order Tracking
+- Admin Dashboard
+- Product Reviews
+- Wishlist
+- Coupon System
+
+---
+
+## 👨‍💻 Author
+
+**Mohamed Fazil**
+
+📧 mohamedfazil.m10@gmail.com
+
+💼 LinkedIn
+
+https://linkedin.com/in/mohamed-fazil-m10
+
+🌐 Portfolio
+
+https://mohamedfazil.netlify.app
+
+---
+
+## ⭐ Support
+
+If you like this project, consider giving it a ⭐ on GitHub.
