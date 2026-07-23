@@ -157,10 +157,7 @@ VITE_SUPABASE_ANON_KEY=YOUR_SUPABASE_KEY
 - AI Image Generation
 - Text Editor
 - Payment Gateway Integration
-- Order Tracking
-- Admin Dashboard
 - Product Reviews
-- Wishlist
 - Coupon System
 
 ---
