@@ -127,28 +127,23 @@ VITE_SUPABASE_ANON_KEY=YOUR_SUPABASE_KEY
 ```
 
 ---
-
 ## 📸 Screenshots
 
-### Home Page
+### Home
 
-(Add Screenshot)
-
-### Product Page
-
-(Add Screenshot)
+![Home](images/home.png)
 
 ### Design Studio
 
-(Add Screenshot)
+![Design Studio](images/Design%20page.png)
 
-### Cart
+### Customize
 
-(Add Screenshot)
+![Cart](images/customize.png)
 
-### Checkout
+### Product
 
-(Add Screenshot)
+![Checkout](images/Product.png)
 
 ---
 
